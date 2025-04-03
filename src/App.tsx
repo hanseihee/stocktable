@@ -700,8 +700,10 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
           const url = `/api/proxy?url=${encodeURIComponent(
             'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=1mo&interval=1d'
           )}`;
+          
           const res = await fetch(url);
           const json = await res.json();
+          
           const close = json.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
           if (close?.[0]) {
             setMonthStartPrice(close[0]);
