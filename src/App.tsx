@@ -676,10 +676,10 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
   
   const getCellColor = (value: number | null): string => {
     if (value != null) {
-      if (value > 5) return '#90ee90';     // 진한 연두
-      if (value > 0) return '#d0f0c0';     // 연한 연두
-      if (value < -5) return '#ff7f7f';    // 진한 핑크
-      if (value < 0) return '#ffc0cb';     // 연한 핑크
+      if (value > 5) return '#90ee90';
+      if (value > 0) return '#d0f0c0';
+      if (value < -5) return '#ff7f7f';
+      if (value < 0) return '#ffc0cb';
     }
     return 'transparent';
   };
@@ -687,34 +687,54 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
   const SP500MonthlyTable: React.FC = () => {
     const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
     const [liveChange, setLiveChange] = useState<string | null>(null);
+    const [monthStartPrice, setMonthStartPrice] = useState<number | null>(null);
   
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = now.getMonth(); // 0-based
+  
+    // ✅ 최초 1회: 월초 종가 가져오기
     useEffect(() => {
-      const fetchAndUpdate = async () => {
+      const fetchMonthStart = async () => {
         try {
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(
+          const url = `https://api.allorigins.win/get?url=${encodeURIComponent(
             'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=1mo&interval=1d'
           )}`;
-          const response = await fetch(proxyUrl);
-          const data = await response.json();
-          const parsed = JSON.parse(data.contents);
+          const res = await fetch(url);
+          const json = await res.json();
+          const parsed = JSON.parse(json.contents);
+          const close = parsed.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+          if (close?.[0]) {
+            setMonthStartPrice(close[0]);
+          }
+        } catch (err) {
+          console.error('❌ 월초 종가 로딩 실패:', err);
+        }
+      };
   
-          const closes: number[] = parsed.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
-          if (!closes || closes.length < 2) throw new Error('Close data not available');
+      fetchMonthStart();
+    }, []);
   
-          const monthStart = closes[0];
-          const latest = closes[closes.length - 1];
-          if (!monthStart || !latest) throw new Error('Price data missing');
+    // ✅ 10초마다 현재가 가져와서 퍼센트 계산
+    useEffect(() => {
+      if (!monthStartPrice) return;
   
-          const percent = ((latest - monthStart) / monthStart) * 100;
+      const fetchLivePrice = async () => {
+        try {
+          const url = `https://api.allorigins.win/get?url=${encodeURIComponent(
+            'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=1d&interval=1m'
+          )}`;
+          const res = await fetch(url);
+          const json = await res.json();
+          const parsed = JSON.parse(json.contents);
+          const closeArr = parsed.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+          const latest = closeArr?.filter((v: number | null) => v != null).pop();
+          if (!latest) throw new Error('실시간 가격 없음');
+  
+          const percent = ((latest - monthStartPrice) / monthStartPrice) * 100;
           const formatted = `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
           setLiveChange(formatted);
   
-          // 현재 연도와 월 index
-          const now = new Date();
-          const year = now.getFullYear().toString();
-          const month = now.getMonth();
-  
-          // returnsData 업데이트
           setReturnsData(prev => {
             const updated = { ...prev };
             if (!updated[year]) updated[year] = new Array(12).fill(null);
@@ -722,15 +742,15 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
             return updated;
           });
         } catch (err) {
-          console.error('❌ Failed to update monthly return:', err);
+          console.error('❌ 실시간 가격 실패:', err);
           setLiveChange('N/A');
         }
       };
   
-      fetchAndUpdate();
-      const interval = setInterval(fetchAndUpdate, 10000); // ⏱ 10초마다
+      fetchLivePrice();
+      const interval = setInterval(fetchLivePrice, 10000);
       return () => clearInterval(interval);
-    }, []);
+    }, [monthStartPrice]);
   
     const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
   
@@ -744,7 +764,6 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
   
     return (
       <div style={{ padding: '20px' }}>
-        {/* 📈 실시간 수익률 표시 */}
         <div style={{ fontSize: '18px', marginBottom: '10px', fontWeight: 'bold' }}>
           {liveChange === null
             ? 'Loading S&P 500 % change...'
@@ -753,11 +772,9 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
             : `📈 S&P 500 Month-to-Date: ${liveChange}`}
         </div>
   
-        {/* 🔷 차트 */}
         <h2>S&amp;P 500 (SPY) Real-Time Chart</h2>
         <TradingViewWidget />
   
-        {/* 📊 테이블 */}
         <h2>S&amp;P 500 Monthly Returns</h2>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ borderCollapse: 'collapse', minWidth: '1000px' }}>
@@ -790,7 +807,7 @@ const monthlyReturns: Record<string, number[]> = {'2025': [2.7, -1.42, -5.75, 1.
                   const bgColor = getCellColor(value);
                   return (
                     <td key={"avg" + i} style={{ ...tdStyle, backgroundColor: bgColor }}>
-                      {value != null ? `${value.toFixed(2)}%` : '-'}
+                      {value != null ? `${value.toFixed(2)}%` : '-' }
                     </td>
                   );
                 })}
