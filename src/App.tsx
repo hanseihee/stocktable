@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import TradingViewWidget from './components/TradingViewWidget'; 
 import monthlyReturns from './data/monthlyReturns';
+import './App.css'; // CSS 파일 추가
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -36,6 +37,7 @@ const getCellColor = (value: number | null): string => {
 const SP500MonthlyTable: React.FC = () => {
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
   const [growthRate, setGrowthRate] = useState<number | null>(null);
+  const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
 
   // 현재 날짜 정보
   const now = new Date();
@@ -59,6 +61,10 @@ const SP500MonthlyTable: React.FC = () => {
               updatedData[currentYear] = new Array(12).fill(null); // 12개월 초기화
             }
             updatedData[currentYear][currentMonth] = data.growthRate; // 현재 월에 growthRate 업데이트
+
+            // 업데이트된 셀 설정
+            setUpdatedCell({ year: currentYear, month: currentMonth });
+
             return updatedData;
           });
         } else {
@@ -106,8 +112,13 @@ const SP500MonthlyTable: React.FC = () => {
                 {months.map((_, i) => {
                   const value = returnsData[y][i];
                   const bgColor = getCellColor(value);
+                  const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
                   return (
-                    <td key={y + i} style={{ ...tdStyle, backgroundColor: bgColor }}>
+                    <td
+                      key={y + i}
+                      style={{ ...tdStyle, backgroundColor: bgColor }}
+                      className={isUpdated ? 'updated-cell' : ''}
+                    >
                       {value != null ? `${value.toFixed(2)}%` : '-'}
                     </td>
                   );

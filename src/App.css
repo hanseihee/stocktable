@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+.updated-cell {
+  animation: highlight 1s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: yellow;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
