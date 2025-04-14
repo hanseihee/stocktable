@@ -34,8 +34,13 @@ const getCellColor = (value: number | null): string => {
 };
 
 const SP500MonthlyTable: React.FC = () => {
-  const [returnsData] = useState<Record<string, number[]>>(monthlyReturns);
+  const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
   const [growthRate, setGrowthRate] = useState<number | null>(null);
+
+  // 현재 날짜 정보
+  const now = new Date();
+  const currentYear = now.getFullYear().toString();
+  const currentMonth = now.getMonth(); // 0-based index (0 = January, 11 = December)
 
   // 5초마다 API 호출
   useEffect(() => {
@@ -46,6 +51,16 @@ const SP500MonthlyTable: React.FC = () => {
 
         if (response.ok) {
           setGrowthRate(data.growthRate);
+
+          // returnsData 업데이트
+          setReturnsData((prevData) => {
+            const updatedData = { ...prevData };
+            if (!updatedData[currentYear]) {
+              updatedData[currentYear] = new Array(12).fill(null); // 12개월 초기화
+            }
+            updatedData[currentYear][currentMonth] = data.growthRate; // 현재 월에 growthRate 업데이트
+            return updatedData;
+          });
         } else {
           console.error('API 오류:', data.error);
         }
@@ -58,7 +73,7 @@ const SP500MonthlyTable: React.FC = () => {
     const interval = setInterval(fetchGrowthRate, 5000); // 5초마다 호출
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
-  }, []);
+  }, [currentYear, currentMonth]);
 
   const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
 
@@ -72,11 +87,6 @@ const SP500MonthlyTable: React.FC = () => {
     <div style={{ padding: '20px' }}>
       <h2>S&amp;P 500 (SPY) Real-Time Chart</h2>
       <TradingViewWidget />
-
-      <h2>Real-Time Growth Rate</h2>
-      <div>
-        <p>Growth Rate: {growthRate !== null ? `${growthRate.toFixed(2)}%` : 'Loading...'}</p>
-      </div>
 
       <h2>S&amp;P 500 Monthly Returns</h2>
       <div style={{ overflowX: 'auto' }}>
