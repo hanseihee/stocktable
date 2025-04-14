@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TradingViewWidget from './components/TradingViewWidget'; 
 import monthlyReturns from './data/monthlyReturns';
 
@@ -35,6 +35,30 @@ const getCellColor = (value: number | null): string => {
 
 const SP500MonthlyTable: React.FC = () => {
   const [returnsData] = useState<Record<string, number[]>>(monthlyReturns);
+  const [growthRate, setGrowthRate] = useState<number | null>(null);
+
+  // 5초마다 API 호출
+  useEffect(() => {
+    const fetchGrowthRate = async () => {
+      try {
+        const response = await fetch('/api/proxy'); // API 엔드포인트 호출
+        const data = await response.json();
+
+        if (response.ok) {
+          setGrowthRate(data.growthRate);
+        } else {
+          console.error('API 오류:', data.error);
+        }
+      } catch (error) {
+        console.error('API 호출 실패:', error);
+      }
+    };
+
+    fetchGrowthRate(); // 초기 호출
+    const interval = setInterval(fetchGrowthRate, 5000); // 5초마다 호출
+
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
+  }, []);
 
   const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
 
@@ -48,6 +72,11 @@ const SP500MonthlyTable: React.FC = () => {
     <div style={{ padding: '20px' }}>
       <h2>S&amp;P 500 (SPY) Real-Time Chart</h2>
       <TradingViewWidget />
+
+      <h2>Real-Time Growth Rate</h2>
+      <div>
+        <p>Growth Rate: {growthRate !== null ? `${growthRate.toFixed(2)}%` : 'Loading...'}</p>
+      </div>
 
       <h2>S&amp;P 500 Monthly Returns</h2>
       <div style={{ overflowX: 'auto' }}>

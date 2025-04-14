@@ -1,125 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import TradingViewWidget from './components/TradingViewWidget'; 
-import monthlyReturns from './data/monthlyReturns';
+import fetch from 'node-fetch'; // node-fetch를 사용하여 API 요청
 
-const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
+export default async function handler(req, res) {
+  try {
+    // Yahoo Finance Chart API URL (2개월 데이터 요청)
+    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=2mo&interval=1d';
 
-const commonStyle: React.CSSProperties = {
-  border: '1px solid #ccc',
-  padding: '8px',
-  textAlign: 'center',
-  whiteSpace: 'nowrap'
-};
+    // API 요청
+    const response = await fetch(url);
+    const data = await response.json();
 
-const thStyle: React.CSSProperties = {
-  ...commonStyle,
-  background: '#f5f5f5'
-};
+    // S&P 500 데이터 추출
+    const result = data?.chart?.result?.[0];
+    const closePrices = result?.indicators?.quote?.[0]?.close;
+    const timestamps = result?.timestamp;
 
-const tdStyle: React.CSSProperties = {
-  ...commonStyle
-};
+    if (!closePrices || !timestamps || closePrices.length < 2) {
+      return res.status(404).json({ error: 'S&P 500 가격 데이터를 가져올 수 없습니다.' });
+    }
 
-const getCellColor = (value: number | null): string => {
-  if (value != null) {
-    if (value > 5) return '#90ee90';
-    if (value > 0) return '#d0f0c0';
-    if (value < -5) return '#ff7f7f';
-    if (value < 0) return '#ffc0cb';
+    // 저번 달 말 종가 추출
+    const dates = timestamps.map((ts) => new Date(ts * 1000)); // 타임스탬프를 날짜로 변환
+    const lastMonthEndIndex = dates.findIndex((date) => date.getDate() === 1) - 1; // 저번 달 마지막 날의 인덱스
+
+    if (lastMonthEndIndex < 0 || !closePrices[lastMonthEndIndex]) {
+      return res.status(404).json({ error: '저번 달 말 종가를 가져올 수 없습니다.' });
+    }
+
+    const lastMonthEndPrice = closePrices[lastMonthEndIndex]; // 저번 달 말 종가
+    const latestPrice = closePrices[closePrices.length - 1]; // 현재 가격
+
+    if (!lastMonthEndPrice || !latestPrice) {
+      return res.status(404).json({ error: '가격 데이터를 가져올 수 없습니다.' });
+    }
+
+    // 상승률 계산
+    const growthRate = ((latestPrice - lastMonthEndPrice) / lastMonthEndPrice) * 100;
+
+    // 응답 반환
+    res.status(200).json({
+      latestPrice,
+      lastMonthEndPrice,
+      growthRate,
+      symbol: result?.meta?.symbol,
+    });
+  } catch (error) {
+    console.error('Yahoo Finance API 호출 에러:', error);
+    res.status(500).json({ error: 'S&P 500 가격 정보를 가져오는 데 실패했습니다.' });
   }
-  return 'transparent';
-};
-
-const SP500MonthlyTable: React.FC = () => {
-  const [returnsData] = useState<Record<string, number[]>>(monthlyReturns);
-  const [growthRate, setGrowthRate] = useState<number | null>(null);
-
-  // 5초마다 API 호출
-  useEffect(() => {
-    const fetchGrowthRate = async () => {
-      try {
-        const response = await fetch('/api/proxy'); // API 엔드포인트 호출
-        const data = await response.json();
-
-        if (response.ok) {
-          setGrowthRate(data.growthRate);
-        } else {
-          console.error('API 오류:', data.error);
-        }
-      } catch (error) {
-        console.error('API 호출 실패:', error);
-      }
-    };
-
-    fetchGrowthRate(); // 초기 호출
-    const interval = setInterval(fetchGrowthRate, 5000); // 5초마다 호출
-
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
-  }, []);
-
-  const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
-
-  const monthlyAverages = months.map((_, i) => {
-    const values = years.map(y => returnsData[y][i]).filter(v => v != null);
-    const sum = values.reduce((a, b) => a + b, 0);
-    return values.length ? sum / values.length : null;
-  });
-
-  return (
-    <div style={{ padding: '20px' }}>
-      <h2>S&amp;P 500 (SPY) Real-Time Chart</h2>
-      <TradingViewWidget />
-
-      <h2>Real-Time Growth Rate</h2>
-      <div>
-        <p>Growth Rate: {growthRate !== null ? `${growthRate.toFixed(2)}%` : 'Loading...'}</p>
-      </div>
-
-      <h2>S&amp;P 500 Monthly Returns</h2>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'collapse', minWidth: '1000px' }}>
-          <thead>
-            <tr>
-              <th style={thStyle}>Year</th>
-              {months.map((month, i) => (
-                <th key={i} style={thStyle}>{month}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {years.map(y => (
-              <tr key={y}>
-                <td style={tdStyle}><strong>{y}</strong></td>
-                {months.map((_, i) => {
-                  const value = returnsData[y][i];
-                  const bgColor = getCellColor(value);
-                  return (
-                    <td key={y + i} style={{ ...tdStyle, backgroundColor: bgColor }}>
-                      {value != null ? `${value.toFixed(2)}%` : '-'}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-            <tr>
-              <td style={{ ...tdStyle, fontWeight: 'bold' }}>Average</td>
-              {monthlyAverages.map((value, i) => {
-                const bgColor = getCellColor(value);
-                return (
-                  <td key={"avg" + i} style={{ ...tdStyle, backgroundColor: bgColor }}>
-                    {value != null ? `${value.toFixed(2)}%` : '-' }
-                  </td>
-                );
-              })}
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-export default SP500MonthlyTable;
+}
