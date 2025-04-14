@@ -36,7 +36,6 @@ const getCellColor = (value: number | null): string => {
 
 const SP500MonthlyTable: React.FC = () => {
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
-  const [growthRate, setGrowthRate] = useState<number | null>(null);
   const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
 
   // 현재 날짜 정보
@@ -52,8 +51,6 @@ const SP500MonthlyTable: React.FC = () => {
         const data = await response.json();
 
         if (response.ok) {
-          setGrowthRate(data.growthRate);
-
           // returnsData 업데이트
           setReturnsData((prevData) => {
             const updatedData = { ...prevData };
@@ -67,6 +64,9 @@ const SP500MonthlyTable: React.FC = () => {
 
             return updatedData;
           });
+
+          // 일정 시간 후 업데이트된 셀 초기화
+          setTimeout(() => setUpdatedCell(null), 1000); // 1초 후 초기화
         } else {
           console.error('API 오류:', data.error);
         }
