@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import TradingViewWidget from './components/TradingViewWidget'; 
 import monthlyReturns from './data/monthlyReturns';
 
@@ -35,33 +35,6 @@ const getCellColor = (value: number | null): string => {
 
 const SP500MonthlyTable: React.FC = () => {
   const [returnsData] = useState<Record<string, number[]>>(monthlyReturns);
-  const [latestPrice, setLatestPrice] = useState<number | null>(null);
-  const [monthStartPrice, setMonthStartPrice] = useState<number | null>(null);
-  const [growthRate, setGrowthRate] = useState<number | null>(null);
-
-  // API 호출
-  useEffect(() => {
-    const fetchSP500Data = async () => {
-      try {
-        console.log('API2 호출됨: /api/proxy');
-        const response = await fetch('/api/proxy'); // API 엔드포인트 호출
-        console.log(response);
-        const data = await response.json();
-
-        if (response.ok) {
-          setLatestPrice(data.latestPrice);
-          setMonthStartPrice(data.monthStartPrice);
-          setGrowthRate(data.growthRate);
-        } else {
-          console.error('API 오류:', data.error);
-        }
-      } catch (error) {
-        console.error('API 호출 실패:', error);
-      }
-    };
-
-    fetchSP500Data();
-  }, []);
 
   const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
 
@@ -75,13 +48,6 @@ const SP500MonthlyTable: React.FC = () => {
     <div style={{ padding: '20px' }}>
       <h2>S&amp;P 500 (SPY) Real-Time Chart</h2>
       <TradingViewWidget />
-
-      <h2>Real-Time S&amp;P 500 Data</h2>
-      <div>
-        <p>Latest Price: {latestPrice !== null ? `$${latestPrice.toFixed(2)}` : 'Loading...'}</p>
-        <p>Month Start Price: {monthStartPrice !== null ? `$${monthStartPrice.toFixed(2)}` : 'Loading...'}</p>
-        <p>Growth Rate: {growthRate !== null ? `${growthRate.toFixed(2)}%` : 'Loading...'}</p>
-      </div>
 
       <h2>S&amp;P 500 Monthly Returns</h2>
       <div style={{ overflowX: 'auto' }}>
