@@ -91,7 +91,7 @@ const SP500MonthlyTable: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>S&amp;P 500 (SPY) Real-Time Chart</h2>
+      <h2>S&amp;P 500 (SPY) Real-Time Chart!</h2>
       <TradingViewWidget />
 
       <h2>S&amp;P 500 Monthly Returns</h2>
