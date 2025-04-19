@@ -10,26 +10,49 @@ import {
   Paper,
   Select,
   MenuItem,
-  Typography
-} from '@mui/material'; // MUI 컴포넌트 추가
+  Typography,
+  Switch,
+  FormControlLabel,
+  CssBaseline
+} from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import monthlyReturns from './data/monthlyReturns';
-import './App.css'; // CSS 파일 가져오기
-import TradingViewWidget from './components/TradingViewWidget'; // TradingView 컴포넌트 가져오기
+import './App.css';
+import TradingViewWidget from './components/TradingViewWidget';
+
+const getCellColor = (value: number | null): string => {
+  if (value != null) {
+    if (value > 5) return '#008000'; // 진한 초록색 (5% 이상)
+    if (value > 0) return '#32CD32'; // 연한 초록색 (0% 이상)
+    if (value < -5) return '#FF0000'; // 진한 빨간색 (-5% 이하)
+    if (value < 0) return '#FF6347'; // 연한 빨간색 (0% 이하)
+  }
+  return '#000000'; // 기본 검정색
+};
 
 const SP500MonthlyTable: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
   const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
+  const [darkMode, setDarkMode] = useState(false); // 다크 모드 상태 추가
 
-  // 현재 날짜 정보
   const now = new Date();
   const currentYear = now.getFullYear().toString();
-  const currentMonth = now.getMonth(); // 0-based index (0 = January, 11 = December)
+  const currentMonth = now.getMonth();
 
-  // 언어 변경 함수
   const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng); // 언어 변경
+    i18n.changeLanguage(lng);
   };
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode); // 다크 모드 토글
+  };
+
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light', // 다크 모드와 라이트 모드 설정
+    },
+  });
 
   const months = [
     t('months.january'),
@@ -46,27 +69,25 @@ const SP500MonthlyTable: React.FC = () => {
     t('months.december')
   ];
 
-  // 5초마다 API 호출
   useEffect(() => {
     const fetchGrowthRate = async () => {
       try {
-        const response = await fetch('/api/proxy'); // API 엔드포인트 호출
+        const response = await fetch('/api/proxy');
         const data = await response.json();
 
         if (response.ok) {
           setReturnsData((prevData) => {
             const updatedData = { ...prevData };
             if (!updatedData[currentYear]) {
-              updatedData[currentYear] = new Array(12).fill(null); // 12개월 초기화
+              updatedData[currentYear] = new Array(12).fill(null);
             }
-            updatedData[currentYear][currentMonth] = data.growthRate; // 현재 월에 growthRate 업데이트
-            console.log('Updated Data:', updatedData); // 업데이트된 데이터 로그
+            updatedData[currentYear][currentMonth] = data.growthRate;
             setUpdatedCell({ year: currentYear, month: currentMonth });
 
             return updatedData;
           });
 
-          setTimeout(() => setUpdatedCell(null), 1000); // 1초 후 초기화
+          setTimeout(() => setUpdatedCell(null), 1000);
         } else {
           console.error('API 오류:', data.error);
         }
@@ -75,10 +96,10 @@ const SP500MonthlyTable: React.FC = () => {
       }
     };
 
-    fetchGrowthRate(); // 초기 호출
-    const interval = setInterval(fetchGrowthRate, 5000); // 5초마다 호출
+    fetchGrowthRate();
+    const interval = setInterval(fetchGrowthRate, 5000);
 
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
+    return () => clearInterval(interval);
   }, [currentYear, currentMonth]);
 
   const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
@@ -90,75 +111,86 @@ const SP500MonthlyTable: React.FC = () => {
   });
 
   return (
-    <div style={{ padding: '20px' }}>
-      {/* 우측 상단 드롭다운 메뉴 */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-        <Select
-          value={i18n.language}
-          onChange={(e) => changeLanguage(e.target.value)}
-          style={{ minWidth: '120px' }}
-        >
-          <MenuItem value="en">English</MenuItem>
-          <MenuItem value="ko">한국어</MenuItem>
-          <MenuItem value="ja">日本語</MenuItem>
-        </Select>
-      </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> {/* 전역 스타일 적용 */}
+      <div style={{ padding: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <Select
+            value={i18n.language}
+            onChange={(e) => changeLanguage(e.target.value)}
+            style={{ minWidth: '120px' }}
+          >
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="ko">한국어</MenuItem>
+            <MenuItem value="ja">日本語</MenuItem>
+          </Select>
+          <FormControlLabel
+            control={<Switch checked={darkMode} onChange={toggleDarkMode} />}
+            label={darkMode ? t('darkMode') : t('lightMode')}
+          />
+        </div>
 
-      <Typography variant="h4" gutterBottom>
-        {t('realTimeChart')}
-      </Typography>
+        <Typography variant="h4" gutterBottom>
+          {t('realTimeChart')}
+        </Typography>
 
-      <TradingViewWidget /> {/* TradingView 위젯 추가 */}
+        <TradingViewWidget/> {/* 다크 모드 상태 전달 */}
 
-      <Typography variant="h5" gutterBottom>
-        {t('monthlyReturns')}
-      </Typography>
+        <Typography variant="h5" gutterBottom>
+          {t('monthlyReturns')}
+        </Typography>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('year')}</TableCell>
-              {months.map((month, i) => (
-                <TableCell key={i} align="center">{month}</TableCell>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('year')}</TableCell>
+                {months.map((month, i) => (
+                  <TableCell key={i} align="center">{month}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {years.map(y => (
+                <TableRow key={y}>
+                  <TableCell component="th" scope="row">
+                    <strong>{y}</strong>
+                  </TableCell>
+                  {months.map((_, i) => {
+                    const value = returnsData[y][i];
+                    const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
+                    const fontColor = getCellColor(value); // 폰트 색상 계산
+                    return (
+                      <TableCell
+                        key={y + i}
+                        align="center"
+                        className={isUpdated ? 'updated-cell' : ''}
+                        style={{ color: fontColor }} // 폰트 색상 적용
+                      >
+                        {value != null ? `${value.toFixed(2)}%` : '-'}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
               ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {years.map(y => (
-              <TableRow key={y}>
-                <TableCell component="th" scope="row">
-                  <strong>{y}</strong>
+              <TableRow>
+                <TableCell>
+                  <strong>{t('average')}</strong>
                 </TableCell>
-                {months.map((_, i) => {
-                  const value = returnsData[y][i];
-                  const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
+                {monthlyAverages.map((value, i) => {
+                  const fontColor = getCellColor(value);
                   return (
-                    <TableCell
-                      key={y + i}
-                      align="center"
-                      className={isUpdated ? 'updated-cell' : ''}
-                    >
+                    <TableCell key={"avg" + i} align="center" style={{ color: fontColor }}>
                       {value != null ? `${value.toFixed(2)}%` : '-'}
                     </TableCell>
                   );
                 })}
               </TableRow>
-            ))}
-            <TableRow>
-              <TableCell>
-                <strong>{t('average')}</strong>
-              </TableCell>
-              {monthlyAverages.map((value, i) => (
-                <TableCell key={"avg" + i} align="center">
-                  {value != null ? `${value.toFixed(2)}%` : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    </ThemeProvider>
   );
 };
 
