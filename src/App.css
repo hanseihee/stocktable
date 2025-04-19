@@ -37,15 +37,18 @@
   }
 }
 
-.updated-cell {
-  animation: highlight 1s ease-in-out;
-}
-
 @keyframes highlight {
   0% {
-    background-color: yellow;
+    background-color: #ffff99;
+  }
+  50% {
+    background-color: #ffeb3b;
   }
   100% {
-    background-color: transparent;
+    background-color: #ffff99;
   }
+}
+
+.updated-cell {
+  animation: highlight 1s ease-in-out;
 }
