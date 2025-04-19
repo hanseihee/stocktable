@@ -1,0 +1,40 @@
+#
+# Basic Crowdin CLI configuration
+# See https://crowdin.github.io/crowdin-cli/configuration for more information
+# See https://support.crowdin.com/developer/configuration-file/ for all available options
+#
+
+#
+# Your Crowdin credentials
+#
+"project_id": "782754"
+"api_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ3UUVxdmhVM3ZMT2EyWGljbVV5VCIsImp0aSI6IjBmN2Q0ODBiZDgxNTFjY2VhZTQwNzIxYjA0ZGJhYWZlNDgzMTkxOTMzNTk0ZWRjM2EwMzcxNDk2NDg2YmIyNTlmZDEyOGM5NTJkMGI1MmFjIiwiaWF0IjoxNzQ1MDc1NjA4Ljk2NzY4NCwibmJmIjoxNzQ1MDc1NjA4Ljk2NzY4NiwiZXhwIjoxNzc2NjExNjA4LjkwMjMxNSwic3ViIjoiMTcwNDk1MjIiLCJzY29wZXMiOlsicHJvamVjdCJdLCJkb21haW4iOm51bGwsImFzc29jaWF0aW9ucyI6WyIqIl0sImxvZ2luX21ldGhvZCI6bnVsbCwic2Vzc2lvbiI6MH0.hafko0r32_UR3hPBdzwRpDTVIjubLyfAti-RJI_EShsZsyyt9b2x2ikjXxpcCpPwvZZuxx6S8AIcYZs4ryHkzpBTaKXgIaEuUWXUlCyaRB8MzaHoFZ3_INIdxhHLGoQu_Y6VHL_S5iAwNrlyUCKrXZxjagM3GqGj24-tMDmMZQkiJSWcfnhjVj1fCPn-UnvTbBwh9sFnHxf8HPYvqxB8UKzoRvpLdZp0wW8cdDcrA7qQdTFbLwAWHGjl9_TVUF0_F46dGZD8bYQ4_ttJuVaM7QYAFt5iqk6ziy1uIS6l3Bz9G0ejI6vfqyhwi3upzKhQ5K_pl9QZVYnpy82XHC9FoMOSu4Th06kyNnuTvBrY5pykLoYt2A7xTbdFE6rI5uh7zaV3Ou4P5zuCxkzsq6ckob7wldUzuK8CBHZ-PNxIkIuhq_aKBTIYbAkP5z3oxHHM_RmWlD0RNPnpkSAgh5mr5PxltHbJgaa5r9KNeDw0bEav2z03ovo03hfGW6ZeMkYS4GFhDqaqxC-Nwa4jezWF_IhFwOrpwCebudJQV3DcfdxksJ916loy9cLI73ACNJaK6BOWpowTfWeFmiSWhw2nhic3xeTOwk9abt9iUcmyuJsPt5_AepK5umF9kT8SUNgKlL3T608byUxvUOi7GoRDHt8JkdY2vKhwYYvZwJ1JrAk"
+"base_path": "."
+"base_url": "https://api.crowdin.com"
+
+#
+# Defines whether to preserve the original directory structure in the Crowdin project
+# Recommended to set to true
+#
+"preserve_hierarchy": true
+
+#
+# Files configuration.
+# See https://support.crowdin.com/developer/configuration-file/ for all available options
+#
+files: [
+  {
+    #
+    # Source files filter
+    # e.g. "/resources/en/*.json"
+    #
+    "source": "/src/locales/en.json",
+
+    #
+    # Translation files filter
+    # e.g. "/resources/%two_letters_code%/%original_file_name%"
+    #
+    
+    "translation": "/src/locales/%two_letters_code%.json"
+  }
+]

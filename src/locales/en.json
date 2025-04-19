@@ -1,0 +1,22 @@
+{
+    "realTimeChart": "S&P 500 (SPY) Real-Time Chart",
+    "monthlyReturns": "S&P 500 Monthly Returns",
+    "year": "Year",
+    "average": "Average",
+    "loading": "Loading...",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "error.404": "404 Not Found"
+  }
