@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'; // 번역 훅 추가
+
 import TradingViewWidget from './components/TradingViewWidget'; 
 import monthlyReturns from './data/monthlyReturns';
 import './App.css'; // CSS 파일 추가
-
-const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
 
 const commonStyle: React.CSSProperties = {
   border: '1px solid #ccc',
@@ -35,6 +32,7 @@ const getCellColor = (value: number | null): string => {
 };
 
 const SP500MonthlyTable: React.FC = () => {
+  const { t, i18n } = useTranslation(); // 번역 훅 사용
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
   const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
 
@@ -43,6 +41,26 @@ const SP500MonthlyTable: React.FC = () => {
   const currentYear = now.getFullYear().toString();
   const currentMonth = now.getMonth(); // 0-based index (0 = January, 11 = December)
 
+  // 언어 변경 함수
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng); // 언어 변경
+  };
+
+  const months = [
+    t('months.january'),
+    t('months.february'),
+    t('months.march'),
+    t('months.april'),
+    t('months.may'),
+    t('months.june'),
+    t('months.july'),
+    t('months.august'),
+    t('months.september'),
+    t('months.october'),
+    t('months.november'),
+    t('months.december')
+  ];
+  
   // 5초마다 API 호출
   useEffect(() => {
     const fetchGrowthRate = async () => {
@@ -91,7 +109,21 @@ const SP500MonthlyTable: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>S&amp;P 500 (SPY) Real-Time Chart!</h2>
+
+      {/* 우측 상단 드롭다운 메뉴 */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+        <select
+          onChange={(e) => changeLanguage(e.target.value)}
+          defaultValue={i18n.language}
+          style={{ padding: '5px', fontSize: '16px' }}
+        >
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+          <option value="ja">日本語</option>
+        </select>
+      </div>
+
+      <h2>{t('realTimeChart')}</h2>
       <TradingViewWidget />
 
       <h2>S&amp;P 500 Monthly Returns</h2>
