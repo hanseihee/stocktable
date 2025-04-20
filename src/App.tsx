@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
-import monthlyReturns from './data/monthlyReturns';
+import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
 
@@ -33,7 +33,7 @@ const getCellColor = (value: number | null): string => {
 
 const SP500MonthlyTable: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturns);
+  const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData); // JSON 데이터로 초기화
   const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
   const [darkMode, setDarkMode] = useState(false); // 다크 모드 상태 추가
 
@@ -95,11 +95,6 @@ const SP500MonthlyTable: React.FC = () => {
       } catch (error) {
         console.error('API 호출 실패:', error);
       }
-
-      const symbol = 'AAPL'; // 여기서 티커 변경 가능
-      const response = await fetch(`/api/stock?symbol=${symbol}`);
-      const data = await response.json();
-      console.log('주식 데이터:', data);
     };
 
     fetchGrowthRate();
