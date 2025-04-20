@@ -1,4 +1,4 @@
-// 파일: /api/stock.ts 또는 .js (type: module일 때도 사용 가능)
+// /api/stock.js
 import yahooFinance from 'yahoo-finance2';
 
 export default async function handler(req, res) {
@@ -14,15 +14,18 @@ export default async function handler(req, res) {
       interval: '1mo'
     });
 
+    if (!result || result.length === 0) {
+      return res.status(404).json({ error: 'No data found for symbol: ' + symbol });
+    }
+
     const formatted = result.map(item => ({
       date: item.date.toISOString().slice(0, 7),
       close: item.close
     }));
 
-    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
     res.status(200).json({ symbol, data: formatted });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch data' });
+    console.error(`Error fetching data for ${symbol}:`, error);
+    res.status(500).json({ error: 'Failed to fetch data', detail: error.message });
   }
 }
