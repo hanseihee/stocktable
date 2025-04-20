@@ -19,6 +19,7 @@
     "next": "^15.2.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-helmet": "^6.1.0",
     "react-i18next": "^13.5.0",
     "react-scripts": "5.0.1",
     "recharts": "^2.15.1",
@@ -48,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-helmet": "^6.1.11"
   }
 }

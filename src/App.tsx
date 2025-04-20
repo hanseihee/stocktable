@@ -16,6 +16,7 @@ import {
   CssBaseline
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Helmet } from 'react-helmet';
 import monthlyReturns from './data/monthlyReturns';
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
@@ -94,6 +95,11 @@ const SP500MonthlyTable: React.FC = () => {
       } catch (error) {
         console.error('API 호출 실패:', error);
       }
+
+      const symbol = 'AAPL'; // 여기서 티커 변경 가능
+      const response = await fetch(`/api/stock?symbol=${symbol}`);
+      const data = await response.json();
+      console.log('주식 데이터:', data);
     };
 
     fetchGrowthRate();
@@ -112,6 +118,13 @@ const SP500MonthlyTable: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <Helmet>
+        <title>S&P500 Monthly Returns</title>
+        <meta name="description" content="Track S&P500 monthly returns and real-time updates." />
+        <meta name="keywords" content="S&P500, stock market, monthly returns, real-time data" />
+        <meta name="author" content="StockTable" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
       <div style={{ padding: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -134,7 +147,7 @@ const SP500MonthlyTable: React.FC = () => {
           {t('realTimeChart')}
         </Typography>
 
-        <TradingViewWidget/> {/* 다크 모드 상태 전달 */}
+        <TradingViewWidget /> {/* 다크 모드 상태 전달 */}
 
         <Typography variant="h5" gutterBottom>
           {t('monthlyReturns')}
