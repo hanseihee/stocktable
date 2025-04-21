@@ -99,7 +99,6 @@ const SP500MonthlyTable: React.FC = () => {
       // 위젯 업데이트 플래그 설정
       setShouldUpdateWidget(true);
       
-      console.log('데이터를 성공적으로 가져왔습니다:', result.data);
     } catch (error) {
       console.error('데이터 가져오기 실패:', error);
       setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
