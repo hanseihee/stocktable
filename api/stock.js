@@ -22,7 +22,8 @@ export default async function handler(req, res) {
     const monthlyData = {};
     
     // 날짜별로 데이터 그룹화
-    result.forEach(item => {
+    for (let i = 0; i < result.length; i++) {
+      const item = result[i];
       const year = item.date.getFullYear().toString();
       const month = item.date.getMonth(); // 0-11
       
@@ -31,9 +32,19 @@ export default async function handler(req, res) {
         monthlyData[year] = new Array(12).fill(null);
       }
       
-      // 월별 데이터 저장
-      monthlyData[year][month] = item.close;
-    });
+      // 월별 등락률 계산 (퍼센트)
+      if (i > 0) {
+        const prevItem = result[i - 1];
+        const prevMonth = prevItem.date.getMonth();
+        const prevYear = prevItem.date.getFullYear().toString();
+        
+        // 같은 연도의 이전 월인 경우에만 계산
+        if (prevYear === year || (prevYear === (parseInt(year) - 1).toString() && month === 0 && prevMonth === 11)) {
+          const returnRate = ((item.close - prevItem.close) / prevItem.close) * 100;
+          monthlyData[year][month] = parseFloat(returnRate.toFixed(2));
+        }
+      }
+    }
 
     // 응답 반환
     res.status(200).json({ 

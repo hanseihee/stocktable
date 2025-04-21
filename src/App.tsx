@@ -23,7 +23,6 @@ import { Helmet } from 'react-helmet';
 import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
-import TableComponent from './components/TableComponent';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -105,9 +104,18 @@ const SP500MonthlyTable: React.FC = () => {
       // localStorage에 데이터 저장
       localStorage.setItem('stockData', JSON.stringify(result.data));
       
-      // 테이블 데이터 설정
+      // 테이블 데이터 설정 - 기존 테이블 데이터 업데이트
       setReturnsData(result.data);
       setSelectedSymbol(symbol);
+      
+      // 현재 월 데이터 업데이트 표시
+      const now = new Date();
+      const currentYear = now.getFullYear().toString();
+      const currentMonth = now.getMonth();
+      setUpdatedCell({ year: currentYear, month: currentMonth });
+      
+      // 1초 후 업데이트 표시 제거
+      setTimeout(() => setUpdatedCell(null), 1000);
       
       console.log('데이터를 성공적으로 가져왔습니다:', result.data);
     } catch (error) {
@@ -193,63 +201,13 @@ const SP500MonthlyTable: React.FC = () => {
           <div className="loading">데이터를 불러오는 중...</div>
         ) : error ? (
           <div className="error">{error}</div>
-        ) : (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('year')}</TableCell>
-                  {months.map((month, i) => (
-                    <TableCell key={i} align="center">{month}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {years.map(y => (
-                  <TableRow key={y}>
-                    <TableCell component="th" scope="row">
-                      <strong>{y}</strong>
-                    </TableCell>
-                    {months.map((_, i) => {
-                      const value = returnsData[y][i];
-                      const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
-                      const fontColor = getCellColor(value);
-                      return (
-                        <TableCell
-                          key={y + i}
-                          align="center"
-                          className={isUpdated ? 'updated-cell' : ''}
-                          style={{ color: fontColor }}
-                        >
-                          {value != null ? `${value.toFixed(2)}%` : '-'}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell>
-                    <strong>{t('average')}</strong>
-                  </TableCell>
-                  {monthlyAverages.map((value, i) => {
-                    const fontColor = getCellColor(value);
-                    return (
-                      <TableCell key={"avg" + i} align="center" style={{ color: fontColor }}>
-                        {value != null ? `${value.toFixed(2)}%` : '-'}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        ) : null}
 
         <Typography variant="h4" gutterBottom>
           {t('realTimeChart')}
         </Typography>
 
-        <TradingViewWidget /> {/* 다크 모드 상태 전달 */}
+        <TradingViewWidget />
 
         <Typography variant="h5" gutterBottom>
           {t('monthlyReturns')}
@@ -274,13 +232,13 @@ const SP500MonthlyTable: React.FC = () => {
                   {months.map((_, i) => {
                     const value = returnsData[y][i];
                     const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
-                    const fontColor = getCellColor(value); // 폰트 색상 계산
+                    const fontColor = getCellColor(value);
                     return (
                       <TableCell
                         key={y + i}
                         align="center"
                         className={isUpdated ? 'updated-cell' : ''}
-                        style={{ color: fontColor }} // 폰트 색상 적용
+                        style={{ color: fontColor }}
                       >
                         {value != null ? `${value.toFixed(2)}%` : '-'}
                       </TableCell>
