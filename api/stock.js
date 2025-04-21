@@ -69,6 +69,7 @@ export default async function handler(req, res) {
         const todayPrice = dailyResult[i-1].close;
         const yesterdayPrice = dailyResult[i].close;
         const dailyReturnRate = ((todayPrice - yesterdayPrice) / yesterdayPrice) * 100;
+        console.log(todayPrice, yesterdayPrice, dailyReturnRate);
         totalReturnRate += dailyReturnRate;
       }
       
