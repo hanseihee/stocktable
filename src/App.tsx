@@ -47,6 +47,7 @@ const SP500MonthlyTable: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState('^GSPC');
+  const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
 
   const now = new Date();
   const currentYear = now.getFullYear().toString();
@@ -108,6 +109,9 @@ const SP500MonthlyTable: React.FC = () => {
       setReturnsData(result.data);
       setSelectedSymbol(symbol);
       
+      // 위젯 업데이트 플래그 설정
+      setShouldUpdateWidget(true);
+      
       // 현재 월 데이터 업데이트 표시
       const now = new Date();
       const currentYear = now.getFullYear().toString();
@@ -145,6 +149,16 @@ const SP500MonthlyTable: React.FC = () => {
   const handleFetchData = () => {
     fetchStockData(selectedSymbol);
   };
+
+  // 위젯 업데이트 후 플래그 초기화
+  useEffect(() => {
+    if (shouldUpdateWidget) {
+      const timer = setTimeout(() => {
+        setShouldUpdateWidget(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldUpdateWidget]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -207,7 +221,7 @@ const SP500MonthlyTable: React.FC = () => {
           {t('realTimeChart')}
         </Typography>
 
-        <TradingViewWidget />
+        <TradingViewWidget darkMode={darkMode} ticker={selectedSymbol} shouldUpdate={shouldUpdateWidget} />
 
         <Typography variant="h5" gutterBottom>
           {t('monthlyReturns')}
