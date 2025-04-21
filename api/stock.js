@@ -27,6 +27,10 @@ export default async function handler(req, res) {
       period1: firstDayOfMonth.toISOString().split('T')[0],
       interval: '1d'
     });
+    console.log("===================일별 데이터 ===================")
+    console.log(dailyResult)
+    
+
 
     // monthlyReturn.json과 동일한 형태로 데이터 변환
     const monthlyData = {};
@@ -60,6 +64,7 @@ export default async function handler(req, res) {
     const currentYear = now.getFullYear().toString();
     const currentMonth = now.getMonth();
     
+    console.log("===================일별 등락률 계산 및 합산===================")
     // 현재 월의 데이터가 있는 경우
     if (dailyResult && dailyResult.length > 1) {
       let totalReturnRate = 0;
@@ -69,7 +74,7 @@ export default async function handler(req, res) {
         const todayPrice = dailyResult[i-1].close;
         const yesterdayPrice = dailyResult[i].close;
         const dailyReturnRate = ((todayPrice - yesterdayPrice) / yesterdayPrice) * 100;
-        console.log(todayPrice, yesterdayPrice, dailyReturnRate);
+        console.log( todayPrice, yesterdayPrice, dailyReturnRate);
         totalReturnRate += dailyReturnRate;
       }
       
