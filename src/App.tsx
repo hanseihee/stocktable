@@ -23,6 +23,7 @@ import { Helmet } from 'react-helmet';
 import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
+import TableComponent from './components/TableComponent';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -34,11 +35,20 @@ const getCellColor = (value: number | null): string => {
   return '#000000'; // 기본 검정색
 };
 
+// 테이블 데이터 타입 정의
+interface TableData {
+  [year: string]: (number | null)[];
+}
+
 const SP500MonthlyTable: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData); // JSON 데이터로 초기화
   const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
   const [darkMode, setDarkMode] = useState(false); // 다크 모드 상태 추가
+  const [tableData, setTableData] = useState<TableData>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState('^GSPC'); // 기본값으로 S&P 500 설정
 
   const now = new Date();
   const currentYear = now.getFullYear().toString();
@@ -132,54 +142,51 @@ const SP500MonthlyTable: React.FC = () => {
   });
 
   const handleRefresh = () => {
-    // 새로고침 전에 현재 데이터를 localStorage에 저장
-    const currentData = {
-      returnsData,
-      timestamp: new Date().toISOString()
-    };
-    localStorage.setItem('sp500TableData', JSON.stringify(currentData));
-    window.location.reload();
+    fetchStockData(selectedSymbol);
   };
 
-  // 주식 데이터 가져오기 및 localStorage에 저장
+  // 데이터 가져오기 함수
   const fetchStockData = async (symbol: string) => {
     try {
+      setIsLoading(true);
+      setError(null);
       const response = await fetch(`/api/stock?symbol=${symbol}`);
-      const data = await response.json();
+      const result = await response.json();
       
-      if (response.ok) {
-        // 데이터를 localStorage에 저장
-        localStorage.setItem(`stockData_${symbol}`, JSON.stringify(data));
-        console.log(`${symbol} 데이터가 localStorage에 저장되었습니다.`);
-        return data;
-      } else {
-        console.error('API 오류:', data.error);
-        return null;
+      if (!response.ok) {
+        throw new Error(result.error || '데이터를 가져오는데 실패했습니다.');
       }
+
+      // localStorage에 데이터 저장
+      localStorage.setItem('stockData', JSON.stringify(result.data));
+      
+      // 테이블 데이터 설정
+      setTableData(result.data);
+      setSelectedSymbol(symbol);
+      
+      console.log('데이터를 성공적으로 가져왔습니다:', result.data);
     } catch (error) {
-      console.error('API 호출 실패:', error);
-      return null;
+      console.error('데이터 가져오기 실패:', error);
+      setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // 심볼 입력 상태 관리
-  const [symbolInput, setSymbolInput] = useState('');
-  const [stockData, setStockData] = useState<any>(null);
-
-  // 심볼 입력 처리
-  const handleSymbolSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (symbolInput.trim()) {
-      const data = await fetchStockData(symbolInput.trim());
-      setStockData(data);
-    }
-  };
-
-  // 예시: S&P 500 데이터 가져오기
+  // 페이지 로드 시 S&P 500 데이터 가져오기
   useEffect(() => {
-    // 페이지 로드 시 S&P 500 데이터 가져오기
     fetchStockData('^GSPC');
   }, []);
+
+  // 심볼 입력 필드 변경 핸들러
+  const handleSymbolChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedSymbol(event.target.value);
+  };
+
+  // 데이터 가져오기 버튼 클릭 핸들러
+  const handleFetchData = () => {
+    fetchStockData(selectedSymbol);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -217,28 +224,27 @@ const SP500MonthlyTable: React.FC = () => {
         </div>
 
         {/* 주식 심볼 입력 폼 */}
-        <Box component="form" onSubmit={handleSymbolSubmit} sx={{ mb: 3, display: 'flex', gap: 2 }}>
+        <Box component="form" onSubmit={handleFetchData} sx={{ mb: 3, display: 'flex', gap: 2 }}>
           <TextField
             label="주식 심볼"
             variant="outlined"
-            value={symbolInput}
-            onChange={(e) => setSymbolInput(e.target.value)}
+            value={selectedSymbol}
+            onChange={handleSymbolChange}
             placeholder="예: AAPL, MSFT, ^GSPC"
             sx={{ flexGrow: 1 }}
           />
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" disabled={isLoading}>
             데이터 가져오기
           </Button>
         </Box>
 
         {/* 주식 데이터 표시 */}
-        {stockData && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6">{stockData.symbol} 월간 데이터</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {stockData.data.length}개의 데이터 포인트, 마지막 업데이트: {new Date().toLocaleString()}
-            </Typography>
-          </Box>
+        {isLoading ? (
+          <div className="loading">데이터를 불러오는 중...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : (
+          <TableComponent data={tableData} />
         )}
 
         <Typography variant="h4" gutterBottom>
