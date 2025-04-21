@@ -219,6 +219,7 @@ const SP500MonthlyTable: React.FC = () => {
           {t('realTimeChart')}
         </Typography>
 
+        {/* @ts-ignore */}
         <TradingViewWidget darkMode={darkMode} ticker={selectedSymbol} shouldUpdate={shouldUpdateWidget} />
 
         <Typography variant="h5" gutterBottom>
@@ -275,7 +276,7 @@ const SP500MonthlyTable: React.FC = () => {
                 <TableCell align="center">
                   <strong>
                     {monthlyAverages.filter(v => v != null).length > 0
-                      ? `${(monthlyAverages.filter(v => v != null).reduce((a, b) => a + b, 0)).toFixed(2)}%`
+                      ? `${((monthlyAverages.filter(v => v != null) as number[]).reduce((a, b) => a + b, 0)).toFixed(2)}%`
                       : '-'}
                   </strong>
                 </TableCell>

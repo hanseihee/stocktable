@@ -8,7 +8,7 @@ interface TradingViewWidgetProps {
 
 const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({ 
   darkMode = false, 
-  ticker = 'SP:SPX',
+  ticker = 'SPY',
   shouldUpdate = false
 }) => {
   const container = useRef<HTMLDivElement>(null);
