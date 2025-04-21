@@ -4,6 +4,9 @@
     "year": "Year",
     "average": "Average",
     "loading": "Loading...",
+    "refresh": "Refresh",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
     "months": {
       "january": "January",
       "february": "February",

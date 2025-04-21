@@ -23,7 +23,11 @@ export default async function handler(req, res) {
       close: item.close
     }));
 
-    res.status(200).json({ symbol, data: formatted });
+    res.status(200).json({ 
+      symbol, 
+      data: formatted,
+      message: '데이터를 localStorage에 저장하려면 브라우저 콘솔에서 다음 코드를 실행하세요: localStorage.setItem(\'stockData\', JSON.stringify(response.data))'
+    });
   } catch (error) {
     console.error(`Error fetching data for ${symbol}:`, error);
     res.status(500).json({ error: 'Failed to fetch data', detail: error.message });

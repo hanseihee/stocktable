@@ -4,6 +4,9 @@
     "year": "연도",
     "average": "평균",
     "loading": "로딩 중...",
+    "refresh": "새로고침",
+    "darkMode": "다크 모드",
+    "lightMode": "라이트 모드",
     "months": {
       "january": "1월",
       "february": "2월",

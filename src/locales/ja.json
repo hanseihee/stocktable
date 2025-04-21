@@ -4,6 +4,9 @@
     "year": "年",
     "average": "平均",
     "loading": "読み込み中…",
+    "refresh": "更新",
+    "darkMode": "ダークモード",
+    "lightMode": "ライトモード",
     "months": {
       "january": "1月",
       "february": "2月",

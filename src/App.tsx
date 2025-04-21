@@ -13,7 +13,10 @@ import {
   Typography,
   Switch,
   FormControlLabel,
-  CssBaseline
+  CssBaseline,
+  Button,
+  TextField,
+  Box
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
@@ -77,6 +80,9 @@ const SP500MonthlyTable: React.FC = () => {
         const data = await response.json();
 
         if (response.ok) {
+          // API 응답 데이터를 localStorage에 저장
+          localStorage.setItem('sp500Data', JSON.stringify(data));
+          
           setReturnsData((prevData) => {
             const updatedData = { ...prevData };
             if (!updatedData[currentYear]) {
@@ -97,6 +103,20 @@ const SP500MonthlyTable: React.FC = () => {
       }
     };
 
+    // 페이지 로드 시 localStorage에서 데이터 불러오기
+    const loadSavedData = () => {
+      const savedData = localStorage.getItem('sp500Data');
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          console.log('저장된 데이터 불러오기:', parsedData);
+        } catch (e) {
+          console.error('저장된 데이터 파싱 오류:', e);
+        }
+      }
+    };
+
+    loadSavedData();
     fetchGrowthRate();
     const interval = setInterval(fetchGrowthRate, 5000);
 
@@ -111,6 +131,56 @@ const SP500MonthlyTable: React.FC = () => {
     return values.length ? sum / values.length : null;
   });
 
+  const handleRefresh = () => {
+    // 새로고침 전에 현재 데이터를 localStorage에 저장
+    const currentData = {
+      returnsData,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('sp500TableData', JSON.stringify(currentData));
+    window.location.reload();
+  };
+
+  // 주식 데이터 가져오기 및 localStorage에 저장
+  const fetchStockData = async (symbol: string) => {
+    try {
+      const response = await fetch(`/api/stock?symbol=${symbol}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        // 데이터를 localStorage에 저장
+        localStorage.setItem(`stockData_${symbol}`, JSON.stringify(data));
+        console.log(`${symbol} 데이터가 localStorage에 저장되었습니다.`);
+        return data;
+      } else {
+        console.error('API 오류:', data.error);
+        return null;
+      }
+    } catch (error) {
+      console.error('API 호출 실패:', error);
+      return null;
+    }
+  };
+
+  // 심볼 입력 상태 관리
+  const [symbolInput, setSymbolInput] = useState('');
+  const [stockData, setStockData] = useState<any>(null);
+
+  // 심볼 입력 처리
+  const handleSymbolSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (symbolInput.trim()) {
+      const data = await fetchStockData(symbolInput.trim());
+      setStockData(data);
+    }
+  };
+
+  // 예시: S&P 500 데이터 가져오기
+  useEffect(() => {
+    // 페이지 로드 시 S&P 500 데이터 가져오기
+    fetchStockData('^GSPC');
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <Helmet>
@@ -123,20 +193,53 @@ const SP500MonthlyTable: React.FC = () => {
       <CssBaseline /> {/* 전역 스타일 적용 */}
       <div style={{ padding: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Select
-            value={i18n.language}
-            onChange={(e) => changeLanguage(e.target.value)}
-            style={{ minWidth: '120px' }}
-          >
-            <MenuItem value="en">English</MenuItem>
-            <MenuItem value="ko">한국어</MenuItem>
-            <MenuItem value="ja">日本語</MenuItem>
-          </Select>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Select
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              style={{ minWidth: '120px' }}
+            >
+              <MenuItem value="en">English</MenuItem>
+              <MenuItem value="ko">한국어</MenuItem>
+              <MenuItem value="ja">日本語</MenuItem>
+            </Select>
+            <Button
+              variant="contained"
+              onClick={handleRefresh}
+            >
+              {t('refresh')}
+            </Button>
+          </div>
           <FormControlLabel
             control={<Switch checked={darkMode} onChange={toggleDarkMode} />}
             label={darkMode ? t('darkMode') : t('lightMode')}
           />
         </div>
+
+        {/* 주식 심볼 입력 폼 */}
+        <Box component="form" onSubmit={handleSymbolSubmit} sx={{ mb: 3, display: 'flex', gap: 2 }}>
+          <TextField
+            label="주식 심볼"
+            variant="outlined"
+            value={symbolInput}
+            onChange={(e) => setSymbolInput(e.target.value)}
+            placeholder="예: AAPL, MSFT, ^GSPC"
+            sx={{ flexGrow: 1 }}
+          />
+          <Button type="submit" variant="contained">
+            데이터 가져오기
+          </Button>
+        </Box>
+
+        {/* 주식 데이터 표시 */}
+        {stockData && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6">{stockData.symbol} 월간 데이터</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {stockData.data.length}개의 데이터 포인트, 마지막 업데이트: {new Date().toLocaleString()}
+            </Typography>
+          </Box>
+        )}
 
         <Typography variant="h4" gutterBottom>
           {t('realTimeChart')}
