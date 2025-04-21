@@ -42,13 +42,12 @@ interface TableData {
 
 const SP500MonthlyTable: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData); // JSON 데이터로 초기화
+  const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
   const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
-  const [darkMode, setDarkMode] = useState(false); // 다크 모드 상태 추가
-  const [tableData, setTableData] = useState<TableData>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState('^GSPC'); // 기본값으로 S&P 500 설정
+  const [selectedSymbol, setSelectedSymbol] = useState('^GSPC');
 
   const now = new Date();
   const currentYear = now.getFullYear().toString();
@@ -83,56 +82,6 @@ const SP500MonthlyTable: React.FC = () => {
     t('months.december')
   ];
 
-  useEffect(() => {
-    const fetchGrowthRate = async () => {
-      try {
-        const response = await fetch('/api/proxy');
-        const data = await response.json();
-
-        if (response.ok) {
-          // API 응답 데이터를 localStorage에 저장
-          localStorage.setItem('sp500Data', JSON.stringify(data));
-          
-          setReturnsData((prevData) => {
-            const updatedData = { ...prevData };
-            if (!updatedData[currentYear]) {
-              updatedData[currentYear] = new Array(12).fill(null);
-            }
-            updatedData[currentYear][currentMonth] = data.growthRate;
-            setUpdatedCell({ year: currentYear, month: currentMonth });
-
-            return updatedData;
-          });
-
-          setTimeout(() => setUpdatedCell(null), 1000);
-        } else {
-          console.error('API 오류:', data.error);
-        }
-      } catch (error) {
-        console.error('API 호출 실패:', error);
-      }
-    };
-
-    // 페이지 로드 시 localStorage에서 데이터 불러오기
-    const loadSavedData = () => {
-      const savedData = localStorage.getItem('sp500Data');
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          console.log('저장된 데이터 불러오기:', parsedData);
-        } catch (e) {
-          console.error('저장된 데이터 파싱 오류:', e);
-        }
-      }
-    };
-
-    loadSavedData();
-    fetchGrowthRate();
-    const interval = setInterval(fetchGrowthRate, 5000);
-
-    return () => clearInterval(interval);
-  }, [currentYear, currentMonth]);
-
   const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
 
   const monthlyAverages = months.map((_, i) => {
@@ -140,10 +89,6 @@ const SP500MonthlyTable: React.FC = () => {
     const sum = values.reduce((a, b) => a + b, 0);
     return values.length ? sum / values.length : null;
   });
-
-  const handleRefresh = () => {
-    fetchStockData(selectedSymbol);
-  };
 
   // 데이터 가져오기 함수
   const fetchStockData = async (symbol: string) => {
@@ -161,7 +106,7 @@ const SP500MonthlyTable: React.FC = () => {
       localStorage.setItem('stockData', JSON.stringify(result.data));
       
       // 테이블 데이터 설정
-      setTableData(result.data);
+      setReturnsData(result.data);
       setSelectedSymbol(symbol);
       
       console.log('데이터를 성공적으로 가져왔습니다:', result.data);
@@ -177,6 +122,11 @@ const SP500MonthlyTable: React.FC = () => {
   useEffect(() => {
     fetchStockData('^GSPC');
   }, []);
+
+  // 새로고침 버튼 클릭 핸들러
+  const handleRefresh = () => {
+    fetchStockData(selectedSymbol);
+  };
 
   // 심볼 입력 필드 변경 핸들러
   const handleSymbolChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,6 +163,7 @@ const SP500MonthlyTable: React.FC = () => {
             <Button
               variant="contained"
               onClick={handleRefresh}
+              disabled={isLoading}
             >
               {t('refresh')}
             </Button>
@@ -224,7 +175,7 @@ const SP500MonthlyTable: React.FC = () => {
         </div>
 
         {/* 주식 심볼 입력 폼 */}
-        <Box component="form" onSubmit={handleFetchData} sx={{ mb: 3, display: 'flex', gap: 2 }}>
+        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} sx={{ mb: 3, display: 'flex', gap: 2 }}>
           <TextField
             label="주식 심볼"
             variant="outlined"
@@ -238,13 +189,60 @@ const SP500MonthlyTable: React.FC = () => {
           </Button>
         </Box>
 
-        {/* 주식 데이터 표시 */}
         {isLoading ? (
           <div className="loading">데이터를 불러오는 중...</div>
         ) : error ? (
           <div className="error">{error}</div>
         ) : (
-          <TableComponent data={tableData} />
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('year')}</TableCell>
+                  {months.map((month, i) => (
+                    <TableCell key={i} align="center">{month}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {years.map(y => (
+                  <TableRow key={y}>
+                    <TableCell component="th" scope="row">
+                      <strong>{y}</strong>
+                    </TableCell>
+                    {months.map((_, i) => {
+                      const value = returnsData[y][i];
+                      const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
+                      const fontColor = getCellColor(value);
+                      return (
+                        <TableCell
+                          key={y + i}
+                          align="center"
+                          className={isUpdated ? 'updated-cell' : ''}
+                          style={{ color: fontColor }}
+                        >
+                          {value != null ? `${value.toFixed(2)}%` : '-'}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell>
+                    <strong>{t('average')}</strong>
+                  </TableCell>
+                  {monthlyAverages.map((value, i) => {
+                    const fontColor = getCellColor(value);
+                    return (
+                      <TableCell key={"avg" + i} align="center" style={{ color: fontColor }}>
+                        {value != null ? `${value.toFixed(2)}%` : '-'}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
 
         <Typography variant="h4" gutterBottom>
