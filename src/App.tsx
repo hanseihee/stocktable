@@ -42,11 +42,10 @@ interface TableData {
 const SP500MonthlyTable: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
-  const [updatedCell, setUpdatedCell] = useState<{ year: string; month: number } | null>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState('^GSPC');
+  const [selectedSymbol, setSelectedSymbol] = useState('SPY');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
 
   const now = new Date();
@@ -58,12 +57,12 @@ const SP500MonthlyTable: React.FC = () => {
   };
 
   const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode); // 다크 모드 토글
+    setDarkMode((prevMode) => !prevMode);
   };
 
   const theme = createTheme({
     palette: {
-      mode: darkMode ? 'dark' : 'light', // 다크 모드와 라이트 모드 설정
+      mode: darkMode ? 'dark' : 'light',
     },
   });
 
@@ -81,14 +80,6 @@ const SP500MonthlyTable: React.FC = () => {
     t('months.november'),
     t('months.december')
   ];
-
-  const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
-
-  const monthlyAverages = months.map((_, i) => {
-    const values = years.map(y => returnsData[y][i]).filter(v => v != null);
-    const sum = values.reduce((a, b) => a + b, 0);
-    return values.length ? sum / values.length : null;
-  });
 
   // 데이터 가져오기 함수
   const fetchStockData = async (symbol: string) => {
@@ -112,12 +103,6 @@ const SP500MonthlyTable: React.FC = () => {
       // 위젯 업데이트 플래그 설정
       setShouldUpdateWidget(true);
       
-      // 현재 월 데이터 업데이트 표시
-      setUpdatedCell({ year: currentYear, month: currentMonth });
-      
-      // 1초 후 업데이트 표시 제거
-      setTimeout(() => setUpdatedCell(null), 1000);
-      
       console.log('데이터를 성공적으로 가져왔습니다:', result.data);
     } catch (error) {
       console.error('데이터 가져오기 실패:', error);
@@ -127,9 +112,9 @@ const SP500MonthlyTable: React.FC = () => {
     }
   };
 
-  // 페이지 로드 시 S&P 500 데이터 가져오기
+  // 페이지 로드 시 SPY 데이터 가져오기
   useEffect(() => {
-    fetchStockData('^GSPC');
+    fetchStockData('SPY');
   }, []);
 
   // 새로고침 버튼 클릭 핸들러
@@ -156,6 +141,22 @@ const SP500MonthlyTable: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [shouldUpdateWidget]);
+
+  const years = Object.keys(returnsData).sort((a, b) => Number(b) - Number(a));
+
+  const monthlyAverages = months.map((_, i) => {
+    const values = years.map(y => returnsData[y][i]).filter(v => v != null);
+    const sum = values.reduce((a, b) => a + b, 0);
+    return values.length ? sum / values.length : null;
+  });
+
+  // 연도별 합계 계산
+  const yearlySums = years.reduce((acc, year) => {
+    const values = returnsData[year].filter(v => v != null);
+    const sum = values.reduce((a, b) => a + b, 0);
+    acc[year] = values.length ? sum : null;
+    return acc;
+  }, {} as Record<string, number | null>);
 
   return (
     <ThemeProvider theme={theme}>
@@ -232,6 +233,7 @@ const SP500MonthlyTable: React.FC = () => {
                 {months.map((month, i) => (
                   <TableCell key={i} align="center">{month}</TableCell>
                 ))}
+                <TableCell align="center">연간 합계</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -242,19 +244,20 @@ const SP500MonthlyTable: React.FC = () => {
                   </TableCell>
                   {months.map((_, i) => {
                     const value = returnsData[y][i];
-                    const isUpdated = updatedCell?.year === y && updatedCell?.month === i;
                     const fontColor = getCellColor(value);
                     return (
                       <TableCell
                         key={y + i}
                         align="center"
-                        className={isUpdated ? 'updated-cell' : ''}
                         style={{ color: fontColor }}
                       >
                         {value != null ? `${value.toFixed(2)}%` : '-'}
                       </TableCell>
                     );
                   })}
+                  <TableCell align="center" style={{ color: getCellColor(yearlySums[y]) }}>
+                    {yearlySums[y] != null ? `${yearlySums[y]?.toFixed(2)}%` : '-'}
+                  </TableCell>
                 </TableRow>
               ))}
               <TableRow>
@@ -269,6 +272,13 @@ const SP500MonthlyTable: React.FC = () => {
                     </TableCell>
                   );
                 })}
+                <TableCell align="center">
+                  <strong>
+                    {monthlyAverages.filter(v => v != null).length > 0
+                      ? `${(monthlyAverages.filter(v => v != null).reduce((a, b) => a + b, 0)).toFixed(2)}%`
+                      : '-'}
+                  </strong>
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>

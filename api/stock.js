@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const result = await yahooFinance.historical(symbol, {
-      period1: '1970-01-01',
+      period1: '2000-01-01',
       interval: '1mo'
     });
 
@@ -46,12 +46,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // 최신 월의 등락률 계산
+    // 현재 월의 총 등락률 계산
     const now = new Date();
     const currentYear = now.getFullYear().toString();
     const currentMonth = now.getMonth();
     
-    // 최신 데이터가 있는 경우
+    // 현재 월의 데이터가 있는 경우
     if (result.length > 0) {
       const latestItem = result[0];
       const latestYear = latestItem.date.getFullYear().toString();
