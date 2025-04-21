@@ -18,14 +18,27 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'No data found for symbol: ' + symbol });
     }
 
-    const formatted = result.map(item => ({
-      date: item.date.toISOString().slice(0, 7),
-      close: item.close
-    }));
+    // monthlyReturn.json과 동일한 형태로 데이터 변환
+    const monthlyData = {};
+    
+    // 날짜별로 데이터 그룹화
+    result.forEach(item => {
+      const year = item.date.getFullYear().toString();
+      const month = item.date.getMonth(); // 0-11
+      
+      // 해당 연도가 없으면 초기화
+      if (!monthlyData[year]) {
+        monthlyData[year] = new Array(12).fill(null);
+      }
+      
+      // 월별 데이터 저장
+      monthlyData[year][month] = item.close;
+    });
 
+    // 응답 반환
     res.status(200).json({ 
       symbol, 
-      data: formatted,
+      data: monthlyData,
       message: '데이터를 localStorage에 저장하려면 브라우저 콘솔에서 다음 코드를 실행하세요: localStorage.setItem(\'stockData\', JSON.stringify(response.data))'
     });
   } catch (error) {
