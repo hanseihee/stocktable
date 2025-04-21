@@ -48,10 +48,6 @@ const SP500MonthlyTable: React.FC = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('SPY');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
 
-  const now = new Date();
-  const currentYear = now.getFullYear().toString();
-  const currentMonth = now.getMonth();
-
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
@@ -88,7 +84,7 @@ const SP500MonthlyTable: React.FC = () => {
       setError(null);
       const response = await fetch(`/api/stock?symbol=${symbol}`);
       const result = await response.json();
-      
+      console.log(result);
       if (!response.ok) {
         throw new Error(result.error || '데이터를 가져오는데 실패했습니다.');
       }
