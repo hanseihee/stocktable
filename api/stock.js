@@ -47,24 +47,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // 현재 월의 등락률 계산
-    const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentMonth = now.getMonth();
-
-    // 현재 월의 데이터가 있는 경우
-    if (monthlyResult.length > 0) {
-      const lastItem = monthlyResult[0];
-      const lastMonth = lastItem.date.getMonth();
-      const lastYear = lastItem.date.getFullYear().toString();
-
-      // 같은 연도의 이전 월인 경우에만 계산
-      if (lastYear === currentYear || (lastYear === (parseInt(currentYear) - 1).toString() && currentMonth === 0 && lastMonth === 11)) {
-        const returnRate = ((lastItem.close - monthlyResult[1].close) / monthlyResult[1].close) * 100;
-        monthlyData[currentYear][currentMonth] = parseFloat(returnRate.toFixed(2));
-      }
-    }
-
     // 응답 반환
     res.status(200).json({ 
       symbol, 
