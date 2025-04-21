@@ -19,15 +19,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'No data found for symbol: ' + symbol });
     }
 
-    // 일별 데이터 가져오기 (현재 월의 등락률 계산용)
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
-    const dailyResult = await yahooFinance.historical(symbol, {
-      period1: firstDayOfMonth.toISOString().split('T')[0],
-      interval: '1d'
-    });
-
     // monthlyReturn.json과 동일한 형태로 데이터 변환
     const monthlyData = {};
     
@@ -54,26 +45,6 @@ export default async function handler(req, res) {
           monthlyData[year][month] = parseFloat(returnRate.toFixed(2));
         }
       }
-    }
-
-    // 현재 월의 등락률 합계 계산
-    const currentYear = now.getFullYear().toString();
-    const currentMonth = now.getMonth();
-    
-    // 현재 월의 데이터가 있는 경우
-    if (dailyResult && dailyResult.length > 1) {
-      // 이번 달의 첫 번째 거래일과 마지막 거래일의 종가를 비교
-      const firstDayPrice = dailyResult[dailyResult.length - 1].close;
-      const lastDayPrice = dailyResult[0].close;
-      
-      // 이번 달의 등락률 계산
-      const currentMonthReturnRate = ((lastDayPrice - firstDayPrice) / firstDayPrice) * 100;
-      
-      // 현재 월의 등락률 설정
-      if (!monthlyData[currentYear]) {
-        monthlyData[currentYear] = new Array(12).fill(null);
-      }
-      monthlyData[currentYear][currentMonth] = parseFloat(currentMonthReturnRate.toFixed(2));
     }
 
     // 응답 반환
