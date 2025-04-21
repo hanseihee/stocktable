@@ -117,11 +117,6 @@ const SP500MonthlyTable: React.FC = () => {
     fetchStockData('SPY');
   }, []);
 
-  // 새로고침 버튼 클릭 핸들러
-  const handleRefresh = () => {
-    fetchStockData(selectedSymbol);
-  };
-
   // 심볼 입력 필드 변경 핸들러
   const handleSymbolChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedSymbol(event.target.value);
@@ -180,13 +175,6 @@ const SP500MonthlyTable: React.FC = () => {
               <MenuItem value="ko">한국어</MenuItem>
               <MenuItem value="ja">日本語</MenuItem>
             </Select>
-            <Button
-              variant="contained"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              {t('refresh')}
-            </Button>
           </div>
           <FormControlLabel
             control={<Switch checked={darkMode} onChange={toggleDarkMode} />}
