@@ -113,9 +113,6 @@ const SP500MonthlyTable: React.FC = () => {
       setShouldUpdateWidget(true);
       
       // 현재 월 데이터 업데이트 표시
-      const now = new Date();
-      const currentYear = now.getFullYear().toString();
-      const currentMonth = now.getMonth();
       setUpdatedCell({ year: currentYear, month: currentMonth });
       
       // 1초 후 업데이트 표시 제거

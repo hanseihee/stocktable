@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const result = await yahooFinance.historical(symbol, {
-      period1: '2000-01-01',
+      period1: '1970-01-01',
       interval: '1mo'
     });
 
@@ -43,6 +43,45 @@ export default async function handler(req, res) {
           const returnRate = ((item.close - prevItem.close) / prevItem.close) * 100;
           monthlyData[year][month] = parseFloat(returnRate.toFixed(2));
         }
+      }
+    }
+
+    // 최신 월의 등락률 계산
+    const now = new Date();
+    const currentYear = now.getFullYear().toString();
+    const currentMonth = now.getMonth();
+    
+    // 최신 데이터가 있는 경우
+    if (result.length > 0) {
+      const latestItem = result[0];
+      const latestYear = latestItem.date.getFullYear().toString();
+      const latestMonth = latestItem.date.getMonth();
+      
+      // 이전 월 데이터 찾기
+      let prevItem = null;
+      for (let i = 1; i < result.length; i++) {
+        const item = result[i];
+        const itemYear = item.date.getFullYear().toString();
+        const itemMonth = item.date.getMonth();
+        
+        // 이전 월 데이터 찾기
+        if ((itemYear === latestYear && itemMonth === (latestMonth - 1)) || 
+            (itemYear === (parseInt(latestYear) - 1).toString() && latestMonth === 0 && itemMonth === 11)) {
+          prevItem = item;
+          break;
+        }
+      }
+      
+      // 이전 월 데이터가 있는 경우 등락률 계산
+      if (prevItem) {
+        const returnRate = ((latestItem.close - prevItem.close) / prevItem.close) * 100;
+        const latestReturnRate = parseFloat(returnRate.toFixed(2));
+        
+        // 현재 월의 등락률 설정
+        if (!monthlyData[currentYear]) {
+          monthlyData[currentYear] = new Array(12).fill(null);
+        }
+        monthlyData[currentYear][currentMonth] = latestReturnRate;
       }
     }
 
