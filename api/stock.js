@@ -70,6 +70,9 @@ export default async function handler(req, res) {
         const yesterdayPrice = dailyResult[i].close;
         const dailyReturnRate = ((todayPrice - yesterdayPrice) / yesterdayPrice) * 100;
         totalReturnRate += dailyReturnRate;
+        
+        // 일별 등락률을 콘솔에 출력
+        console.log(`일별 등락률: ${dailyReturnRate.toFixed(2)}%`);
       }
       
       // 현재 월의 등락률 설정
