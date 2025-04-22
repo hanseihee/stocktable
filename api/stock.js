@@ -87,6 +87,7 @@ export default async function handler(req, res) {
     res.status(200).json({ 
       symbol, 
       data: monthlyData,
+      dailyData: dailyResult, // 현재 월의 일별 데이터 포함
       message: '데이터를 localStorage에 저장하려면 브라우저 콘솔에서 다음 코드를 실행하세요: localStorage.setItem(\'stockData\', JSON.stringify(response.data))'
     });
   } catch (error) {
