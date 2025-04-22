@@ -23,17 +23,11 @@ export default async function handler(req, res) {
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     
-    console.log('===================일별 데이터 ===================');
-    console.log('첫 번째 날:', firstDayOfMonth.toISOString().split('T')[0]);
-    
     const dailyResult = await yahooFinance.historical(symbol, {
       period1: firstDayOfMonth.toISOString().split('T')[0],
       interval: '1d'
     });
     
-    console.log('일별 데이터 개수:', dailyResult.length);
-    console.log('일별 데이터:', dailyResult);
-
     // monthlyReturn.json과 동일한 형태로 데이터 변환
     const monthlyData = {};
     
@@ -62,29 +56,31 @@ export default async function handler(req, res) {
       }
     }
 
-    // 현재 월의 등락률 합계 계산
+    // 현재 월의 등락률 계산
     const currentYear = now.getFullYear().toString();
     const currentMonth = now.getMonth();
     
     // 현재 월의 데이터가 있는 경우
     if (dailyResult && dailyResult.length > 1) {
-      let totalReturnRate = 0;
-      
-      // 일별 등락률 계산 및 합산
-      for (let i = 1; i < dailyResult.length; i++) {
-        const todayPrice = dailyResult[i-1].close;
-        const yesterdayPrice = dailyResult[i].close;
-        const dailyReturnRate = ((todayPrice - yesterdayPrice) / yesterdayPrice) * 100;
-        console.log(`일별 등락률: ${dailyReturnRate.toFixed(2)}%`);
-        totalReturnRate += dailyReturnRate;
+      // 오늘이 1일인 경우, 오늘의 종가를 그대로 사용
+      if (now.getDate() === 1) {
+        const todayPrice = dailyResult[0].close;
+        if (!monthlyData[currentYear]) {
+          monthlyData[currentYear] = new Array(12).fill(null);
+        }
+        monthlyData[currentYear][currentMonth] = parseFloat(todayPrice.toFixed(2));
+      } else {
+        // 첫날과 오늘의 close 가격을 비교하여 등락률 계산
+        const firstDayPrice = dailyResult[dailyResult.length - 1].close;
+        const lastDayPrice = dailyResult[0].close;
+        const returnRate = ((lastDayPrice - firstDayPrice) / firstDayPrice) * 100;
+        
+        // 현재 월의 등락률 설정
+        if (!monthlyData[currentYear]) {
+          monthlyData[currentYear] = new Array(12).fill(null);
+        }
+        monthlyData[currentYear][currentMonth] = parseFloat(returnRate.toFixed(2));
       }
-      
-      // 현재 월의 등락률 설정
-      if (!monthlyData[currentYear]) {
-        monthlyData[currentYear] = new Array(12).fill(null);
-      }
-      monthlyData[currentYear][currentMonth] = parseFloat(totalReturnRate.toFixed(2));
-      console.log(`현재 월 총 등락률: ${totalReturnRate.toFixed(2)}%`);
     }
 
     // 응답 반환
