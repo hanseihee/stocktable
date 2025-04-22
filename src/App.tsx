@@ -26,8 +26,8 @@ import TradingViewWidget from './components/TradingViewWidget';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
-    if (value > 5) return '#008000'; // 진한 초록색 (5% 이상)
-    if (value > 0) return '#32CD32'; // 연한 초록색 (0% 이상)
+    if (value > 5) return '#32CD32'; // 진한 초록색 (5% 이상)
+    if (value > 0) return '#008000'; // 연한 초록색 (0% 이상)
     if (value < -5) return '#FF0000'; // 진한 빨간색 (-5% 이하)
     if (value < 0) return '#FF6347'; // 연한 빨간색 (0% 이하)
   }
@@ -151,9 +151,9 @@ const SP500MonthlyTable: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Helmet>
-        <title>S&P500 Monthly Returns</title>
-        <meta name="description" content="Track S&P500 monthly returns and real-time updates." />
-        <meta name="keywords" content="S&P500, stock market, monthly returns, real-time data" />
+        <title>{selectedSymbol} Monthly Returns</title>
+        <meta name="description" content={`Track ${selectedSymbol} monthly returns and real-time updates.`} />
+        <meta name="keywords" content={`${selectedSymbol}, stock market, monthly returns, real-time data`} />
         <meta name="author" content="StockTable" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
@@ -199,14 +199,14 @@ const SP500MonthlyTable: React.FC = () => {
         ) : null}
 
         <Typography variant="h4" gutterBottom>
-          {t('realTimeChart')}
+          {selectedSymbol} Real-Time Chart
         </Typography>
 
         {/* @ts-ignore */}
         <TradingViewWidget darkMode={darkMode} ticker={selectedSymbol} shouldUpdate={shouldUpdateWidget} />
 
         <Typography variant="h5" gutterBottom>
-          {t('monthlyReturns')}
+          {selectedSymbol} Monthly Returns
         </Typography>
 
         <TableContainer component={Paper}>
@@ -257,11 +257,7 @@ const SP500MonthlyTable: React.FC = () => {
                   );
                 })}
                 <TableCell align="center">
-                  <strong>
-                    {monthlyAverages.filter(v => v != null).length > 0
-                      ? `${((monthlyAverages.filter(v => v != null) as number[]).reduce((a, b) => a + b, 0)).toFixed(2)}%`
-                      : '-'}
-                  </strong>
+                  <strong>-</strong>
                 </TableCell>
               </TableRow>
             </TableBody>
