@@ -123,7 +123,9 @@ const SP500MonthlyTable: React.FC = () => {
 
   // 데이터 가져오기 버튼 클릭 핸들러
   const handleFetchData = () => {
-    fetchStockData(selectedSymbol);
+    const upperSymbol = selectedSymbol.toUpperCase();
+    setSelectedSymbol(upperSymbol);
+    fetchStockData(upperSymbol);
   };
 
   // 위젯 업데이트 후 플래그 초기화

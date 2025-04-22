@@ -1,6 +1,6 @@
 {
-    "realTimeChart": "S&P 500 (SPY) 실시간 차트",
-    "monthlyReturns": "S&P 500 월간 수익률",
+    "realTimeChart": "실시간 차트",
+    "monthlyReturns": "월별 수익률",
     "year": "연도",
     "average": "평균",
     "loading": "로딩 중...",
@@ -21,5 +21,5 @@
       "november": "11월",
       "december": "12월"
     },
-    "error.404": "요청하신 페이지를 찾을 수 없습니다."
+    "error.404": "요청하신 페이지를 찾을 수 없습니다"
 }
