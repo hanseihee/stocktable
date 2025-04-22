@@ -92,6 +92,7 @@ const SP500MonthlyTable: React.FC = () => {
 
       // localStorage에 데이터 저장
       localStorage.setItem('stockData', JSON.stringify(result.data));
+      localStorage.setItem('lastSymbol', symbol);
       
       // 테이블 데이터 설정 - 기존 테이블 데이터 업데이트
       setReturnsData(result.data);
@@ -109,9 +110,10 @@ const SP500MonthlyTable: React.FC = () => {
     }
   };
 
-  // 페이지 로드 시 SPY 데이터 가져오기
+  // 페이지 로드 시 마지막으로 검색한 티커 데이터 가져오기
   useEffect(() => {
-    fetchStockData('SPY');
+    const lastSymbol = localStorage.getItem('lastSymbol') || 'SPY';
+    fetchStockData(lastSymbol);
   }, []);
 
   // 심볼 입력 필드 변경 핸들러
