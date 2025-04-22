@@ -1,6 +1,6 @@
 {
-    "realTimeChart": "S&P 500 (SPY) Real-Time Chart",
-    "monthlyReturns": "S&P 500 Monthly Returns",
+    "realTimeChart": "Real-Time Chart",
+    "monthlyReturns": "Monthly Returns",
     "year": "Year",
     "average": "Average",
     "loading": "Loading...",
