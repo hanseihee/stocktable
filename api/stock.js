@@ -62,27 +62,16 @@ export default async function handler(req, res) {
     
     // 현재 월의 데이터가 있는 경우
     if (dailyResult && dailyResult.length > 1) {
-      // 오늘이 1일인 경우, 1일의 open과 close 값을 비교
-      if (now.getDate() === 1) {
-        const firstDayOpen = dailyResult[0].open;
-        const firstDayClose = dailyResult[0].close;
-        const returnRate = ((firstDayClose - firstDayOpen) / firstDayOpen) * 100;
-        if (!monthlyData[currentYear]) {
-          monthlyData[currentYear] = new Array(12).fill(null);
-        }
-        monthlyData[currentYear][currentMonth] = parseFloat(returnRate.toFixed(2));
-      } else {
-        // 첫날의 open과 오늘의 close 가격을 비교하여 등락률 계산
-        const firstDayOpen = dailyResult[dailyResult.length - 1].open;
-        const lastDayClose = dailyResult[0].close;
-        const returnRate = ((lastDayClose - firstDayOpen) / firstDayOpen) * 100;
-        
-        // 현재 월의 등락률 설정
-        if (!monthlyData[currentYear]) {
-          monthlyData[currentYear] = new Array(12).fill(null);
-        }
-        monthlyData[currentYear][currentMonth] = parseFloat(returnRate.toFixed(2));
+      // 1일 기준으로 오늘의 등락률 계산
+      const firstDayOpen = dailyResult[dailyResult.length - 1].open;
+      const lastDayClose = dailyResult[0].close;
+      const returnRate = ((lastDayClose - firstDayOpen) / firstDayOpen) * 100;
+      
+      // 현재 월의 등락률 설정
+      if (!monthlyData[currentYear]) {
+        monthlyData[currentYear] = new Array(12).fill(null);
       }
+      monthlyData[currentYear][currentMonth] = parseFloat(returnRate.toFixed(2));
     }
 
     // 응답 반환
