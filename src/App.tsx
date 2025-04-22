@@ -47,6 +47,7 @@ const SP500MonthlyTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState('SPY');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
+  const [displaySymbol, setDisplaySymbol] = useState('SPY');
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -95,6 +96,7 @@ const SP500MonthlyTable: React.FC = () => {
       // 테이블 데이터 설정 - 기존 테이블 데이터 업데이트
       setReturnsData(result.data);
       setSelectedSymbol(symbol);
+      setDisplaySymbol(symbol);
       
       // 위젯 업데이트 플래그 설정
       setShouldUpdateWidget(true);
@@ -151,9 +153,9 @@ const SP500MonthlyTable: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Helmet>
-        <title>{selectedSymbol} Monthly Returns</title>
-        <meta name="description" content={`Track ${selectedSymbol} monthly returns and real-time updates.`} />
-        <meta name="keywords" content={`${selectedSymbol}, stock market, monthly returns, real-time data`} />
+        <title>{displaySymbol} {t('monthlyReturns')}</title>
+        <meta name="description" content={`Track ${displaySymbol} ${t('monthlyReturns')} and real-time updates.`} />
+        <meta name="keywords" content={`${displaySymbol}, stock market, ${t('monthlyReturns')}, real-time data`} />
         <meta name="author" content="StockTable" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
@@ -199,14 +201,14 @@ const SP500MonthlyTable: React.FC = () => {
         ) : null}
 
         <Typography variant="h4" gutterBottom>
-          {selectedSymbol} Real-Time Chart
+          {displaySymbol} {t('realTimeChart')}
         </Typography>
 
         {/* @ts-ignore */}
-        <TradingViewWidget darkMode={darkMode} ticker={selectedSymbol} shouldUpdate={shouldUpdateWidget} />
+        <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
 
         <Typography variant="h5" gutterBottom>
-          {selectedSymbol} Monthly Returns
+          {displaySymbol} {t('monthlyReturns')}
         </Typography>
 
         <TableContainer component={Paper}>
