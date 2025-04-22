@@ -47,6 +47,7 @@ const SP500MonthlyTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState('SPY');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
+  const [dailyData, setDailyData] = useState<any[]>([]); // 현재 월의 일별 데이터
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -98,6 +99,9 @@ const SP500MonthlyTable: React.FC = () => {
       
       // 위젯 업데이트 플래그 설정
       setShouldUpdateWidget(true);
+
+      // 현재 월의 일별 데이터 설정
+      setDailyData(result.dailyData || []);
       
     } catch (error) {
       console.error('데이터 가져오기 실패:', error);
@@ -197,6 +201,29 @@ const SP500MonthlyTable: React.FC = () => {
         ) : error ? (
           <div className="error">{error}</div>
         ) : null}
+
+        {/* 현재 월의 일별 데이터 표시 */}
+        <Typography variant="h5" gutterBottom>
+          현재 월의 일별 데이터
+        </Typography>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>날짜</TableCell>
+                <TableCell>종가</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {dailyData.map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{item.close}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <Typography variant="h4" gutterBottom>
           {t('realTimeChart')}
