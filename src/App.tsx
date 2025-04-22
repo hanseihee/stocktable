@@ -12,16 +12,18 @@ import {
   MenuItem,
   Typography,
   Switch,
-  FormControlLabel,
   CssBaseline,
   Button,
   TextField,
   Box,
   AppBar,
-  Toolbar
+  Toolbar,
+  IconButton
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
@@ -171,7 +173,7 @@ const SP500MonthlyTable: React.FC = () => {
           <Typography variant="h6" style={{ flexGrow: 1 }}>
             StockTable
           </Typography>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <Select
               value={i18n.language}
               onChange={(e) => changeLanguage(e.target.value)}
@@ -181,10 +183,9 @@ const SP500MonthlyTable: React.FC = () => {
               <MenuItem value="ko">🇰🇷 한국어</MenuItem>
               <MenuItem value="ja">🇯🇵 日本語</MenuItem>
             </Select>
-            <FormControlLabel
-              control={<Switch checked={darkMode} onChange={toggleDarkMode} />}
-              label={darkMode ? t('darkMode') : t('lightMode')}
-            />
+            <IconButton onClick={toggleDarkMode} color="inherit">
+              {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
           </div>
         </Toolbar>
       </AppBar>
