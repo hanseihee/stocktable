@@ -63,8 +63,8 @@ export default async function handler(req, res) {
     // 현재 월의 데이터가 있는 경우
     if (dailyResult && dailyResult.length > 1) {
       // 1일 기준으로 오늘의 등락률 계산
-      const firstDayOpen = dailyResult[dailyResult.length - 1].open;
-      const lastDayClose = dailyResult[0].close;
+      const firstDayOpen = dailyResult[0].open;
+      const lastDayClose = dailyResult[dailyResult.length - 1].close;
       const returnRate = ((lastDayClose - firstDayOpen) / firstDayOpen) * 100;
       
       // 현재 월의 등락률 설정
