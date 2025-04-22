@@ -16,7 +16,9 @@ import {
   CssBaseline,
   Button,
   TextField,
-  Box
+  Box,
+  AppBar,
+  Toolbar
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
@@ -164,25 +166,29 @@ const SP500MonthlyTable: React.FC = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
-      <div style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+      <AppBar position="static" style={{ background: '#1976d2' }}>
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>
+            StockTable
+          </Typography>
           <div style={{ display: 'flex', gap: '10px' }}>
             <Select
               value={i18n.language}
               onChange={(e) => changeLanguage(e.target.value)}
               style={{ minWidth: '120px' }}
             >
-              <MenuItem value="en">English</MenuItem>
-              <MenuItem value="ko">한국어</MenuItem>
-              <MenuItem value="ja">日本語</MenuItem>
+              <MenuItem value="en">🇺🇸 English</MenuItem>
+              <MenuItem value="ko">🇰🇷 한국어</MenuItem>
+              <MenuItem value="ja">🇯🇵 日本語</MenuItem>
             </Select>
+            <FormControlLabel
+              control={<Switch checked={darkMode} onChange={toggleDarkMode} />}
+              label={darkMode ? t('darkMode') : t('lightMode')}
+            />
           </div>
-          <FormControlLabel
-            control={<Switch checked={darkMode} onChange={toggleDarkMode} />}
-            label={darkMode ? t('darkMode') : t('lightMode')}
-          />
-        </div>
-
+        </Toolbar>
+      </AppBar>
+      <div style={{ padding: '20px' }}>
         {/* 주식 심볼 입력 폼 */}
         <Box component="form" onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} sx={{ mb: 3, display: 'flex', gap: 2 }}>
           <TextField

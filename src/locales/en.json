@@ -21,5 +21,6 @@
       "november": "November",
       "december": "December"
     },
-    "error.404": "404 Not Found"
+    "error.404": "404 Not Found",
+    "error.failedToFetchData": "Failed to fetch data"
   }
