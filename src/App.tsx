@@ -27,6 +27,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
+import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -43,15 +44,17 @@ interface TableData {
   [year: string]: (number | null)[];
 }
 
-const SP500MonthlyTable: React.FC = () => {
+const StockTable: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
   const [darkMode, setDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState('SPY');
+  const [selectedSymbol, setSelectedSymbol] = useState('');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
-  const [displaySymbol, setDisplaySymbol] = useState('SPY');
+  const [displaySymbol, setDisplaySymbol] = useState('');
+  const { symbol = 'SPY' } = useParams<{ symbol: string }>();
+  const navigate = useNavigate();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -116,9 +119,8 @@ const SP500MonthlyTable: React.FC = () => {
 
   // 페이지 로드 시 마지막으로 검색한 티커 데이터 가져오기
   useEffect(() => {
-    const lastSymbol = localStorage.getItem('lastSymbol') || 'SPY';
-    fetchStockData(lastSymbol);
-  }, []);
+    fetchStockData(symbol.toUpperCase());
+  }, [symbol]);
 
   // 심볼 입력 필드 변경 핸들러
   const handleSymbolChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,8 +130,7 @@ const SP500MonthlyTable: React.FC = () => {
   // 데이터 가져오기 버튼 클릭 핸들러
   const handleFetchData = () => {
     const upperSymbol = selectedSymbol.toUpperCase();
-    setSelectedSymbol(upperSymbol);
-    fetchStockData(upperSymbol);
+    navigate(`/symbol/${upperSymbol}`);
   };
 
   // 위젯 업데이트 후 플래그 초기화
@@ -281,4 +282,14 @@ const SP500MonthlyTable: React.FC = () => {
   );
 };
 
-export default SP500MonthlyTable;
+const App: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to={`/symbol/${localStorage.getItem('lastSymbol') || 'SPY'}`} replace />} />
+      <Route path="/symbol/:symbol" element={<StockTable />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default App;
