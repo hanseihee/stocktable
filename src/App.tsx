@@ -229,7 +229,7 @@ const StockTable: React.FC = () => {
       </AppBar>
       <div style={{ padding: '20px' }}>
         {/* 주식 심볼 입력 폼 */}
-        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} sx={{ mb: 3, display: 'flex', gap: 2 }}>
+        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} sx={{ mb: 3, display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
           <Autocomplete
             freeSolo
             options={searchHistory}
@@ -244,7 +244,7 @@ const StockTable: React.FC = () => {
                 label="주식 심볼"
                 variant="outlined"
                 placeholder="예: AAPL, MSFT, ^GSPC"
-                sx={{ flexGrow: 1 }}
+                sx={{ width: { xs: '100%', sm: '75%' } }}
               />
             )}
             renderOption={(props, option) => (
@@ -257,7 +257,12 @@ const StockTable: React.FC = () => {
               style: { maxHeight: 300 }
             }}
           />
-          <Button type="submit" variant="contained" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            disabled={isLoading}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
+          >
             데이터 가져오기
           </Button>
         </Box>
@@ -279,11 +284,27 @@ const StockTable: React.FC = () => {
           {displaySymbol} {t('monthlyReturns')}
         </Typography>
 
-        <TableContainer component={Paper}>
+        <TableContainer 
+          component={Paper} 
+          sx={{ 
+            overflowX: 'auto',
+            position: 'relative'
+          }}
+        >
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>{t('year')}</TableCell>
+                <TableCell 
+                  sx={{ 
+                    position: 'sticky', 
+                    left: 0, 
+                    zIndex: 1,
+                    backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {t('year')}
+                </TableCell>
                 {months.map((month, i) => (
                   <TableCell key={i} align="center">{month}</TableCell>
                 ))}
@@ -293,7 +314,17 @@ const StockTable: React.FC = () => {
             <TableBody>
               {years.map(y => (
                 <TableRow key={y}>
-                  <TableCell component="th" scope="row">
+                  <TableCell 
+                    component="th" 
+                    scope="row"
+                    sx={{ 
+                      position: 'sticky', 
+                      left: 0, 
+                      zIndex: 1,
+                      backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
+                      fontWeight: 'bold'
+                    }}
+                  >
                     <strong>{y}</strong>
                   </TableCell>
                   {months.map((_, i) => {
@@ -315,7 +346,15 @@ const StockTable: React.FC = () => {
                 </TableRow>
               ))}
               <TableRow>
-                <TableCell>
+                <TableCell
+                  sx={{ 
+                    position: 'sticky', 
+                    left: 0, 
+                    zIndex: 1,
+                    backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
+                    fontWeight: 'bold'
+                  }}
+                >
                   <strong>{t('average')}</strong>
                 </TableCell>
                 {monthlyAverages.slice(0, -1).map((value, i) => {
