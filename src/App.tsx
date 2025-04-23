@@ -18,16 +18,20 @@ import {
   Box,
   AppBar,
   Toolbar,
-  IconButton
+  IconButton,
+  Autocomplete,
+  ListItemText,
+  Divider
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import HistoryIcon from '@mui/icons-material/History';
 import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
-import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useNavigate, Link } from 'react-router-dom';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -53,8 +57,25 @@ const StockTable: React.FC = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState('');
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const { symbol = 'SPY' } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
+
+  // 검색 기록 로드
+  useEffect(() => {
+    const history = localStorage.getItem('searchHistory');
+    if (history) {
+      setSearchHistory(JSON.parse(history));
+    }
+  }, []);
+
+  // 검색 기록 저장
+  const saveSearchHistory = (symbol: string) => {
+    const upperSymbol = symbol.toUpperCase();
+    const newHistory = [upperSymbol, ...searchHistory.filter(item => item !== upperSymbol)].slice(0, 10);
+    setSearchHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -106,6 +127,9 @@ const StockTable: React.FC = () => {
       setSelectedSymbol(symbol);
       setDisplaySymbol(symbol);
       
+      // 검색 기록 저장
+      saveSearchHistory(symbol);
+      
       // 위젯 업데이트 플래그 설정
       setShouldUpdateWidget(true);
       
@@ -131,6 +155,13 @@ const StockTable: React.FC = () => {
   const handleFetchData = () => {
     const upperSymbol = selectedSymbol.toUpperCase();
     navigate(`/symbol/${upperSymbol}`);
+  };
+
+  // 검색 기록에서 항목 선택 핸들러
+  const handleHistorySelect = (event: React.SyntheticEvent, value: string | null) => {
+    if (value) {
+      navigate(`/symbol/${value}`);
+    }
   };
 
   // 위젯 업데이트 후 플래그 초기화
@@ -171,7 +202,13 @@ const StockTable: React.FC = () => {
       <CssBaseline /> {/* 전역 스타일 적용 */}
       <AppBar position="static" style={{ background: '#1976d2' }}>
         <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
+          <Typography 
+            variant="h6" 
+            style={{ flexGrow: 1, cursor: 'pointer' }}
+            component={Link} 
+            to="/"
+            sx={{ textDecoration: 'none', color: 'white' }}
+          >
             StockTable
           </Typography>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -193,13 +230,32 @@ const StockTable: React.FC = () => {
       <div style={{ padding: '20px' }}>
         {/* 주식 심볼 입력 폼 */}
         <Box component="form" onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} sx={{ mb: 3, display: 'flex', gap: 2 }}>
-          <TextField
-            label="주식 심볼"
-            variant="outlined"
+          <Autocomplete
+            freeSolo
+            options={searchHistory}
             value={selectedSymbol}
-            onChange={handleSymbolChange}
-            placeholder="예: AAPL, MSFT, ^GSPC"
-            sx={{ flexGrow: 1 }}
+            onChange={handleHistorySelect}
+            onInputChange={(event, newInputValue) => {
+              setSelectedSymbol(newInputValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="주식 심볼"
+                variant="outlined"
+                placeholder="예: AAPL, MSFT, ^GSPC"
+                sx={{ flexGrow: 1 }}
+              />
+            )}
+            renderOption={(props, option) => (
+              <li {...props}>
+                <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
+                <ListItemText primary={option} />
+              </li>
+            )}
+            ListboxProps={{
+              style: { maxHeight: 300 }
+            }}
           />
           <Button type="submit" variant="contained" disabled={isLoading}>
             데이터 가져오기
