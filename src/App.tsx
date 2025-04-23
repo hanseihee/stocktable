@@ -28,6 +28,7 @@ import { Helmet } from 'react-helmet';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import HistoryIcon from '@mui/icons-material/History';
+import SearchIcon from '@mui/icons-material/Search';
 import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가져오기
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
@@ -200,73 +201,138 @@ const StockTable: React.FC = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
-      <AppBar position="static" style={{ background: '#1976d2' }}>
-        <Toolbar>
+      <AppBar position="static" sx={{ 
+        backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#1976d2',
+        boxShadow: 'none',
+        borderBottom: '1px solid',
+        borderColor: theme.palette.mode === 'dark' ? '#333' : '#e5e5e5'
+      }}>
+        <Toolbar sx={{ 
+          minHeight: '56px',
+          gap: 2,
+          padding: '0 16px'
+        }}>
           <Typography 
             variant="h6" 
-            style={{ flexGrow: 1, cursor: 'pointer' }}
             component={Link} 
             to="/"
-            sx={{ textDecoration: 'none', color: 'white' }}
+            sx={{ 
+              textDecoration: 'none', 
+              color: 'white',
+              fontWeight: 'bold',
+              '&:hover': {
+                textDecoration: 'none',
+                opacity: 0.8
+              }
+            }}
           >
             StockTable
           </Typography>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+
+          <Box component="form" 
+            onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} 
+            sx={{ 
+              display: 'flex',
+              flexGrow: 1,
+              maxWidth: '680px',
+              gap: 1
+            }}
+          >
+            <Autocomplete
+              freeSolo
+              options={searchHistory}
+              value={selectedSymbol}
+              onChange={handleHistorySelect}
+              onInputChange={(event, newInputValue) => {
+                setSelectedSymbol(newInputValue);
+              }}
+              sx={{
+                flexGrow: 1,
+                '& .MuiInputBase-root': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
+                  borderRadius: '8px',
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark' ? '#404040' : '#e8e8e8'
+                  },
+                  '& fieldset': {
+                    border: 'none'
+                  }
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Search for news, symbols or companies"
+                  variant="outlined"
+                  size="small"
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <SearchIcon sx={{ color: 'text.secondary', ml: 1, mr: 1 }} />
+                    )
+                  }}
+                />
+              )}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
+                  <ListItemText primary={option} />
+                </li>
+              )}
+              ListboxProps={{
+                style: { maxHeight: 300 }
+              }}
+            />
+            <Button 
+              type="submit" 
+              variant="contained"
+              disabled={isLoading}
+              sx={{ 
+                minWidth: 'auto',
+                px: 3,
+                backgroundColor: '#00a400',
+                '&:hover': {
+                  backgroundColor: '#008f00'
+                }
+              }}
+            >
+              <SearchIcon />
+            </Button>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Select
               value={i18n.language}
               onChange={(e) => changeLanguage(e.target.value)}
-              style={{ minWidth: '120px' }}
+              size="small"
+              sx={{
+                backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
+                '& fieldset': { border: 'none' },
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#404040' : '#e8e8e8'
+                }
+              }}
             >
-              <MenuItem value="en">🇺🇸 English</MenuItem>
-              <MenuItem value="ko">🇰🇷 한국어</MenuItem>
-              <MenuItem value="ja">🇯🇵 日本語</MenuItem>
+              <MenuItem value="en">🇺🇸 EN</MenuItem>
+              <MenuItem value="ko">🇰🇷 KO</MenuItem>
+              <MenuItem value="ja">🇯🇵 JA</MenuItem>
             </Select>
-            <IconButton onClick={toggleDarkMode} color="inherit">
+            <IconButton 
+              onClick={toggleDarkMode} 
+              sx={{ 
+                color: 'white',
+                backgroundColor: theme.palette.mode === 'dark' ? '#333' : 'transparent',
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#404040' : 'rgba(255,255,255,0.1)'
+                }
+              }}
+            >
               {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
-          </div>
+          </Box>
         </Toolbar>
       </AppBar>
       <div style={{ padding: '20px' }}>
-        {/* 주식 심볼 입력 폼 */}
-        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} sx={{ mb: 3, display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-          <Autocomplete
-            freeSolo
-            options={searchHistory}
-            value={selectedSymbol}
-            onChange={handleHistorySelect}
-            onInputChange={(event, newInputValue) => {
-              setSelectedSymbol(newInputValue);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="주식 심볼"
-                variant="outlined"
-                placeholder="예: AAPL, MSFT, ^GSPC"
-                sx={{ width: { xs: '100%', sm: '75%' } }}
-              />
-            )}
-            renderOption={(props, option) => (
-              <li {...props}>
-                <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
-                <ListItemText primary={option} />
-              </li>
-            )}
-            ListboxProps={{
-              style: { maxHeight: 300 }
-            }}
-          />
-          <Button 
-            type="submit" 
-            variant="contained" 
-            disabled={isLoading}
-            sx={{ width: { xs: '100%', sm: 'auto' } }}
-          >
-            데이터 가져오기
-          </Button>
-        </Box>
-
         {isLoading ? (
           <div className="loading">데이터를 불러오는 중...</div>
         ) : error ? (
@@ -288,10 +354,14 @@ const StockTable: React.FC = () => {
           component={Paper} 
           sx={{ 
             overflowX: 'auto',
-            position: 'relative'
+            position: 'relative',
+            '& .MuiTable-root': {
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+            }
           }}
         >
-          <Table>
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell 
@@ -300,15 +370,39 @@ const StockTable: React.FC = () => {
                     left: 0, 
                     zIndex: 1,
                     backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    minWidth: '80px',
+                    width: '80px',
+                    whiteSpace: 'nowrap',
+                    padding: '12px 8px'
                   }}
                 >
                   {t('year')}
                 </TableCell>
                 {months.map((month, i) => (
-                  <TableCell key={i} align="center">{month}</TableCell>
+                  <TableCell 
+                    key={i} 
+                    align="center"
+                    sx={{
+                      minWidth: '80px',
+                      whiteSpace: 'nowrap',
+                      padding: '12px 8px'
+                    }}
+                  >
+                    {month}
+                  </TableCell>
                 ))}
-                <TableCell align="center">연간 합계</TableCell>
+                <TableCell 
+                  align="center"
+                  sx={{
+                    minWidth: '100px',
+                    whiteSpace: 'nowrap',
+                    padding: '12px 8px'
+                  }}
+                >
+                  연간 합계
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -322,10 +416,15 @@ const StockTable: React.FC = () => {
                       left: 0, 
                       zIndex: 1,
                       backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      minWidth: '80px',
+                      width: '80px',
+                      whiteSpace: 'nowrap',
+                      padding: '12px 8px'
                     }}
                   >
-                    <strong>{y}</strong>
+                    {y}
                   </TableCell>
                   {months.map((_, i) => {
                     const value = returnsData[y][i];
@@ -334,13 +433,26 @@ const StockTable: React.FC = () => {
                       <TableCell
                         key={y + i}
                         align="center"
+                        sx={{
+                          minWidth: '80px',
+                          whiteSpace: 'nowrap',
+                          padding: '12px 8px'
+                        }}
                         style={{ color: fontColor }}
                       >
                         {value != null ? `${value.toFixed(2)}%` : '-'}
                       </TableCell>
                     );
                   })}
-                  <TableCell align="center" style={{ color: getCellColor(yearlySums[y]) }}>
+                  <TableCell 
+                    align="center" 
+                    sx={{
+                      minWidth: '100px',
+                      whiteSpace: 'nowrap',
+                      padding: '12px 8px'
+                    }}
+                    style={{ color: getCellColor(yearlySums[y]) }}
+                  >
                     {yearlySums[y] != null ? `${yearlySums[y]?.toFixed(2)}%` : '-'}
                   </TableCell>
                 </TableRow>
@@ -352,20 +464,41 @@ const StockTable: React.FC = () => {
                     left: 0, 
                     zIndex: 1,
                     backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    minWidth: '80px',
+                    width: '80px',
+                    whiteSpace: 'nowrap',
+                    padding: '12px 8px'
                   }}
                 >
-                  <strong>{t('average')}</strong>
+                  {t('average')}
                 </TableCell>
                 {monthlyAverages.slice(0, -1).map((value, i) => {
                   const fontColor = getCellColor(value);
                   return (
-                    <TableCell key={"avg" + i} align="center" style={{ color: fontColor }}>
+                    <TableCell 
+                      key={"avg" + i} 
+                      align="center"
+                      sx={{
+                        minWidth: '80px',
+                        whiteSpace: 'nowrap',
+                        padding: '12px 8px'
+                      }}
+                      style={{ color: fontColor }}
+                    >
                       {value != null ? `${value.toFixed(2)}%` : '-'}
                     </TableCell>
                   );
                 })}
-                <TableCell align="center">
+                <TableCell 
+                  align="center"
+                  sx={{
+                    minWidth: '100px',
+                    whiteSpace: 'nowrap',
+                    padding: '12px 8px'
+                  }}
+                >
                   <strong>-</strong>
                 </TableCell>
               </TableRow>
