@@ -41,7 +41,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       // 현재 ticker 저장
       prevTickerRef.current = ticker;
     }
-  };
+  }; 
 
   // 스크립트 로드 및 위젯 초기화
   useEffect(() => {
