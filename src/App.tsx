@@ -21,7 +21,9 @@ import {
   IconButton,
   Autocomplete,
   ListItemText,
-  Divider
+  Divider,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
@@ -59,8 +61,13 @@ const StockTable: React.FC = () => {
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const { symbol = 'SPY' } = useParams<{ symbol: string }>();
+  const { symbol: routeSymbol } = useParams<{ symbol?: string }>(); // Make symbol optional
   const navigate = useNavigate();
+  const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
+  const isMobile = useMediaQuery(themeMui.breakpoints.down('sm'));
+
+  // Determine the symbol to use
+  const currentSymbol = routeSymbol || localStorage.getItem('lastSymbol') || 'SPY';
 
   // 검색 기록 로드
   useEffect(() => {
@@ -108,11 +115,12 @@ const StockTable: React.FC = () => {
   ];
 
   // 데이터 가져오기 함수
-  const fetchStockData = async (symbol: string) => {
+  const fetchStockData = async (symbolToFetch: string) => {
+    if (!symbolToFetch) return; // Avoid fetching if symbol is empty
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/stock?symbol=${symbol}`);
+      const response = await fetch(`/api/stock?symbol=${symbolToFetch}`);
       const result = await response.json();
       
       if (!response.ok) {
@@ -121,15 +129,15 @@ const StockTable: React.FC = () => {
 
       // localStorage에 데이터 저장
       localStorage.setItem('stockData', JSON.stringify(result.data));
-      localStorage.setItem('lastSymbol', symbol);
+      localStorage.setItem('lastSymbol', symbolToFetch);
       
-      // 테이블 데이터 설정 - 기존 테이블 데이터 업데이트
+      // 테이블 데이터 설정
       setReturnsData(result.data);
-      setSelectedSymbol(symbol);
-      setDisplaySymbol(symbol);
+      // setSelectedSymbol(symbolToFetch); // Keep input separate from display/fetch
+      setDisplaySymbol(symbolToFetch);
       
       // 검색 기록 저장
-      saveSearchHistory(symbol);
+      saveSearchHistory(symbolToFetch);
       
       // 위젯 업데이트 플래그 설정
       setShouldUpdateWidget(true);
@@ -142,10 +150,19 @@ const StockTable: React.FC = () => {
     }
   };
 
-  // 페이지 로드 시 마지막으로 검색한 티커 데이터 가져오기
+  // 페이지 로드 또는 심볼 변경 시 데이터 가져오기
   useEffect(() => {
-    fetchStockData(symbol.toUpperCase());
-  }, [symbol]);
+    const upperSymbol = currentSymbol.toUpperCase();
+    fetchStockData(upperSymbol);
+    // Update search input only if it differs from the fetched symbol
+    if (selectedSymbol.toUpperCase() !== upperSymbol) {
+       setSelectedSymbol(upperSymbol);
+    }
+    // Navigate to the specific symbol URL if we landed on root
+    if (!routeSymbol && currentSymbol) {
+      navigate(`/symbol/${upperSymbol}`, { replace: true });
+    }
+  }, [currentSymbol, navigate, routeSymbol]); // Depend on currentSymbol
 
   // 심볼 입력 필드 변경 핸들러
   const handleSymbolChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,13 +172,16 @@ const StockTable: React.FC = () => {
   // 데이터 가져오기 버튼 클릭 핸들러
   const handleFetchData = () => {
     const upperSymbol = selectedSymbol.toUpperCase();
-    navigate(`/symbol/${upperSymbol}`);
+    if (upperSymbol && upperSymbol !== displaySymbol) { // Fetch only if symbol is valid and changed
+      navigate(`/symbol/${upperSymbol}`);
+    }
   };
 
   // 검색 기록에서 항목 선택 핸들러
   const handleHistorySelect = (event: React.SyntheticEvent, value: string | null) => {
     if (value) {
-      navigate(`/symbol/${value}`);
+      setSelectedSymbol(value); // Update input field
+      navigate(`/symbol/${value.toUpperCase()}`);
     }
   };
 
@@ -191,12 +211,87 @@ const StockTable: React.FC = () => {
     return acc;
   }, {} as Record<string, number | null>);
 
+  const renderSearchBar = () => (
+    <Box component="form" 
+      onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} 
+      sx={{ 
+        display: 'flex',
+        flexGrow: { xs: 0, sm: 1 }, // Allow growth on larger screens
+        maxWidth: { xs: '100%', sm: '680px' },
+        gap: 1,
+        padding: { xs: '16px', sm: 0 }, // Add padding on mobile
+        order: { xs: 1, sm: 0 } // Change order on mobile
+      }}
+    >
+      <Autocomplete
+        freeSolo
+        options={searchHistory}
+        value={selectedSymbol}
+        onChange={handleHistorySelect}
+        onInputChange={(event, newInputValue) => {
+          setSelectedSymbol(newInputValue);
+        }}
+        sx={{
+          flexGrow: 1,
+          '& .MuiInputBase-root': {
+            backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
+            borderRadius: '8px',
+            '&:hover': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#404040' : '#e8e8e8'
+            },
+            '& fieldset': {
+              border: 'none'
+            }
+          }
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder="Search for news, symbols or companies"
+            variant="outlined"
+            size="small"
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <SearchIcon sx={{ color: 'text.secondary', ml: 1, mr: 1 }} />
+              )
+            }}
+          />
+        )}
+        renderOption={(props, option) => (
+          <li {...props}>
+            <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
+            <ListItemText primary={option} />
+          </li>
+        )}
+        ListboxProps={{
+          style: { maxHeight: 300 }
+        }}
+      />
+      <Button 
+        type="submit" 
+        variant="contained"
+        disabled={isLoading}
+        sx={{ 
+          minWidth: 'auto',
+          px: 3,
+          backgroundColor: '#00a400',
+          '&:hover': {
+            backgroundColor: '#008f00'
+          }
+        }}
+      >
+        <SearchIcon />
+      </Button>
+    </Box>
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <Helmet>
-        <title>{displaySymbol} {t('monthlyReturns')}</title>
-        <meta name="description" content={`Track ${displaySymbol} ${t('monthlyReturns')} and real-time updates.`} />
-        <meta name="keywords" content={`${displaySymbol}, stock market, ${t('monthlyReturns')}, real-time data`} />
+        <title>{displaySymbol || currentSymbol} {t('monthlyReturns')}</title>
+        <meta name="description" content={`Track ${displaySymbol || currentSymbol} ${t('monthlyReturns')} and real-time updates.`} />
+        <meta name="keywords" content={`${displaySymbol || currentSymbol}, stock market, ${t('monthlyReturns')}, real-time data`} />
         <meta name="author" content="StockTable" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
@@ -229,78 +324,9 @@ const StockTable: React.FC = () => {
             StockTable
           </Typography>
 
-          <Box component="form" 
-            onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} 
-            sx={{ 
-              display: 'flex',
-              flexGrow: 1,
-              maxWidth: '680px',
-              gap: 1
-            }}
-          >
-            <Autocomplete
-              freeSolo
-              options={searchHistory}
-              value={selectedSymbol}
-              onChange={handleHistorySelect}
-              onInputChange={(event, newInputValue) => {
-                setSelectedSymbol(newInputValue);
-              }}
-              sx={{
-                flexGrow: 1,
-                '& .MuiInputBase-root': {
-                  backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
-                  borderRadius: '8px',
-                  '&:hover': {
-                    backgroundColor: theme.palette.mode === 'dark' ? '#404040' : '#e8e8e8'
-                  },
-                  '& fieldset': {
-                    border: 'none'
-                  }
-                }
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder="Search for news, symbols or companies"
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    ...params.InputProps,
-                    startAdornment: (
-                      <SearchIcon sx={{ color: 'text.secondary', ml: 1, mr: 1 }} />
-                    )
-                  }}
-                />
-              )}
-              renderOption={(props, option) => (
-                <li {...props}>
-                  <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
-                  <ListItemText primary={option} />
-                </li>
-              )}
-              ListboxProps={{
-                style: { maxHeight: 300 }
-              }}
-            />
-            <Button 
-              type="submit" 
-              variant="contained"
-              disabled={isLoading}
-              sx={{ 
-                minWidth: 'auto',
-                px: 3,
-                backgroundColor: '#00a400',
-                '&:hover': {
-                  backgroundColor: '#008f00'
-                }
-              }}
-            >
-              <SearchIcon />
-            </Button>
-          </Box>
+          {!isMobile && renderSearchBar()} {/* Render search bar in Toolbar on non-mobile */} 
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, marginLeft: 'auto' }}> {/* Ensure right alignment */} 
             <Select
               value={i18n.language}
               onChange={(e) => changeLanguage(e.target.value)}
@@ -332,6 +358,9 @@ const StockTable: React.FC = () => {
           </Box>
         </Toolbar>
       </AppBar>
+      
+      {isMobile && renderSearchBar()} {/* Render search bar below AppBar on mobile */} 
+
       <div style={{ padding: '20px' }}>
         {isLoading ? (
           <div className="loading">데이터를 불러오는 중...</div>
@@ -339,172 +368,174 @@ const StockTable: React.FC = () => {
           <div className="error">{error}</div>
         ) : null}
 
-        <Typography variant="h4" gutterBottom>
-          {displaySymbol} {t('realTimeChart')}
-        </Typography>
+        {displaySymbol && (
+          <>
+            <Typography variant="h4" gutterBottom>
+              {displaySymbol} {t('realTimeChart')}
+            </Typography>
+            {/* @ts-ignore */}
+            <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
 
-        {/* @ts-ignore */}
-        <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
-
-        <Typography variant="h5" gutterBottom>
-          {displaySymbol} {t('monthlyReturns')}
-        </Typography>
-
-        <TableContainer 
-          component={Paper} 
-          sx={{ 
-            overflowX: 'auto',
-            position: 'relative',
-            '& .MuiTable-root': {
-              borderCollapse: 'separate',
-              borderSpacing: 0,
-            }
-          }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell 
-                  sx={{ 
-                    position: 'sticky', 
-                    left: 0, 
-                    zIndex: 1,
-                    backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    minWidth: '80px',
-                    width: '80px',
-                    whiteSpace: 'nowrap',
-                    padding: '12px 8px'
-                  }}
-                >
-                  {t('year')}
-                </TableCell>
-                {months.map((month, i) => (
-                  <TableCell 
-                    key={i} 
-                    align="center"
-                    sx={{
-                      minWidth: '80px',
-                      whiteSpace: 'nowrap',
-                      padding: '12px 8px'
-                    }}
-                  >
-                    {month}
-                  </TableCell>
-                ))}
-                <TableCell 
-                  align="center"
-                  sx={{
-                    minWidth: '100px',
-                    whiteSpace: 'nowrap',
-                    padding: '12px 8px'
-                  }}
-                >
-                  연간 합계
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {years.map(y => (
-                <TableRow key={y}>
-                  <TableCell 
-                    component="th" 
-                    scope="row"
-                    sx={{ 
-                      position: 'sticky', 
-                      left: 0, 
-                      zIndex: 1,
-                      backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      minWidth: '80px',
-                      width: '80px',
-                      whiteSpace: 'nowrap',
-                      padding: '12px 8px'
-                    }}
-                  >
-                    {y}
-                  </TableCell>
-                  {months.map((_, i) => {
-                    const value = returnsData[y][i];
-                    const fontColor = getCellColor(value);
-                    return (
-                      <TableCell
-                        key={y + i}
+            <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+              {displaySymbol} {t('monthlyReturns')}
+            </Typography>
+            <TableContainer 
+              component={Paper} 
+              sx={{ 
+                overflowX: 'auto',
+                position: 'relative',
+                '& .MuiTable-root': {
+                  borderCollapse: 'separate',
+                  borderSpacing: 0,
+                }
+              }}
+            >
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell 
+                      sx={{ 
+                        position: 'sticky', 
+                        left: 0, 
+                        zIndex: 1,
+                        backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        minWidth: '80px',
+                        width: '80px',
+                        whiteSpace: 'nowrap',
+                        padding: '12px 8px'
+                      }}
+                    >
+                      {t('year')}
+                    </TableCell>
+                    {months.map((month, i) => (
+                      <TableCell 
+                        key={i} 
                         align="center"
                         sx={{
                           minWidth: '80px',
                           whiteSpace: 'nowrap',
                           padding: '12px 8px'
                         }}
-                        style={{ color: fontColor }}
                       >
-                        {value != null ? `${value.toFixed(2)}%` : '-'}
+                        {month}
                       </TableCell>
-                    );
-                  })}
-                  <TableCell 
-                    align="center" 
-                    sx={{
-                      minWidth: '100px',
-                      whiteSpace: 'nowrap',
-                      padding: '12px 8px'
-                    }}
-                    style={{ color: getCellColor(yearlySums[y]) }}
-                  >
-                    {yearlySums[y] != null ? `${yearlySums[y]?.toFixed(2)}%` : '-'}
-                  </TableCell>
-                </TableRow>
-              ))}
-              <TableRow>
-                <TableCell
-                  sx={{ 
-                    position: 'sticky', 
-                    left: 0, 
-                    zIndex: 1,
-                    backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    minWidth: '80px',
-                    width: '80px',
-                    whiteSpace: 'nowrap',
-                    padding: '12px 8px'
-                  }}
-                >
-                  {t('average')}
-                </TableCell>
-                {monthlyAverages.slice(0, -1).map((value, i) => {
-                  const fontColor = getCellColor(value);
-                  return (
+                    ))}
                     <TableCell 
-                      key={"avg" + i} 
                       align="center"
                       sx={{
-                        minWidth: '80px',
+                        minWidth: '100px',
                         whiteSpace: 'nowrap',
                         padding: '12px 8px'
                       }}
-                      style={{ color: fontColor }}
                     >
-                      {value != null ? `${value.toFixed(2)}%` : '-'}
+                      연간 합계
                     </TableCell>
-                  );
-                })}
-                <TableCell 
-                  align="center"
-                  sx={{
-                    minWidth: '100px',
-                    whiteSpace: 'nowrap',
-                    padding: '12px 8px'
-                  }}
-                >
-                  <strong>-</strong>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {years.map(y => (
+                    <TableRow key={y}>
+                      <TableCell 
+                        component="th" 
+                        scope="row"
+                        sx={{ 
+                          position: 'sticky', 
+                          left: 0, 
+                          zIndex: 1,
+                          backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                          minWidth: '80px',
+                          width: '80px',
+                          whiteSpace: 'nowrap',
+                          padding: '12px 8px'
+                        }}
+                      >
+                        {y}
+                      </TableCell>
+                      {months.map((_, i) => {
+                        const value = returnsData[y][i];
+                        const fontColor = getCellColor(value);
+                        return (
+                          <TableCell
+                            key={y + i}
+                            align="center"
+                            sx={{
+                              minWidth: '80px',
+                              whiteSpace: 'nowrap',
+                              padding: '12px 8px'
+                            }}
+                            style={{ color: fontColor }}
+                          >
+                            {value != null ? `${value.toFixed(2)}%` : '-'}
+                          </TableCell>
+                        );
+                      })}
+                      <TableCell 
+                        align="center" 
+                        sx={{
+                          minWidth: '100px',
+                          whiteSpace: 'nowrap',
+                          padding: '12px 8px'
+                        }}
+                        style={{ color: getCellColor(yearlySums[y]) }}
+                      >
+                        {yearlySums[y] != null ? `${yearlySums[y]?.toFixed(2)}%` : '-'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell
+                      sx={{ 
+                        position: 'sticky', 
+                        left: 0, 
+                        zIndex: 1,
+                        backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        minWidth: '80px',
+                        width: '80px',
+                        whiteSpace: 'nowrap',
+                        padding: '12px 8px'
+                      }}
+                    >
+                      {t('average')}
+                    </TableCell>
+                    {monthlyAverages.slice(0, -1).map((value, i) => {
+                      const fontColor = getCellColor(value);
+                      return (
+                        <TableCell 
+                          key={"avg" + i} 
+                          align="center"
+                          sx={{
+                            minWidth: '80px',
+                            whiteSpace: 'nowrap',
+                            padding: '12px 8px'
+                          }}
+                          style={{ color: fontColor }}
+                        >
+                          {value != null ? `${value.toFixed(2)}%` : '-'}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell 
+                      align="center"
+                      sx={{
+                        minWidth: '100px',
+                        whiteSpace: 'nowrap',
+                        padding: '12px 8px'
+                      }}
+                    >
+                      <strong>-</strong>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        )}
       </div>
     </ThemeProvider>
   );
@@ -513,7 +544,7 @@ const StockTable: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={`/symbol/${localStorage.getItem('lastSymbol') || 'SPY'}`} replace />} />
+      <Route path="/" element={<StockTable />} />
       <Route path="/symbol/:symbol" element={<StockTable />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
