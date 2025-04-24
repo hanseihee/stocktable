@@ -51,7 +51,7 @@ interface TableData {
   [year: string]: (number | null)[];
 }
 
-type SearchOption = string | { symbol: string; longname: string; };
+type SearchOption = string | { symbol: string; longname: string; logoUrl?: string };
 
 const StockTable: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -63,7 +63,7 @@ const StockTable: React.FC = () => {
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<Array<{symbol: string, longname: string}>>([]);
+  const [suggestions, setSuggestions] = useState<Array<{symbol: string, longname: string, logoUrl?: string}>>([]);
   const { symbol: routeSymbol } = useParams<{ symbol?: string }>(); // Make symbol optional
   const navigate = useNavigate();
   const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
@@ -229,7 +229,8 @@ const StockTable: React.FC = () => {
         if (data.quotes) {
           setSuggestions(data.quotes.map((quote: any) => ({
             symbol: quote.symbol,
-            longname: quote.longname || quote.shortname
+            longname: quote.longname || quote.shortname,
+            logoUrl: quote.logoUrl
           })));
         }
       } catch (error) {
@@ -263,7 +264,7 @@ const StockTable: React.FC = () => {
     >
       <Autocomplete
         freeSolo
-        options={[...suggestions, ...searchHistory.map(symbol => ({ symbol, longname: symbol }))]}
+        options={[...suggestions, ...searchHistory.map(symbol => ({ symbol, longname: symbol, logoUrl: undefined }))]}
         value={selectedSymbol}
         onChange={(event, newValue) => {
           if (newValue) {
@@ -291,7 +292,20 @@ const StockTable: React.FC = () => {
           }
           return (
             <li {...props}>
-              <SearchIcon fontSize="small" style={{ marginRight: 8 }} />
+              {option.logoUrl ? (
+                <img 
+                  src={option.logoUrl} 
+                  alt={option.symbol}
+                  style={{ 
+                    width: 20, 
+                    height: 20, 
+                    marginRight: 8,
+                    objectFit: 'contain'
+                  }} 
+                />
+              ) : (
+                <SearchIcon fontSize="small" style={{ marginRight: 8 }} />
+              )}
               <ListItemText 
                 primary={option.symbol}
                 secondary={option.longname}
