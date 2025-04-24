@@ -222,7 +222,7 @@ const StockTable: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch(`https://query2.finance.yahoo.com/v1/finance/search?q=${query}&lang=en-US&region=US&quotesCount=5&newsCount=0&listsCount=0&enableFuzzyQuery=false&quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_quote_single_token_query&newsQueryId=news_cie_vespa&enableCb=false&enableNavLinks=true&enableEnhancedTrivialQuery=true&enableResearchReports=false&enableCulturalAssets=true&enableLogoUrl=true&enableLists=false&recommendCount=0&enablePrivateCompany=true`);
+      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (data.quotes) {
         setSuggestions(data.quotes.map((quote: any) => ({
