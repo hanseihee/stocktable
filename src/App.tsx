@@ -227,7 +227,14 @@ const StockTable: React.FC = () => {
         const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
         const data = await response.json();
         if (data.quotes) {
-          setSuggestions(data.quotes.map((quote: any) => ({
+          const filteredQuotes = data.quotes.filter((quote: any) => {
+            const searchLower = query.toLowerCase();
+            return (
+              quote.symbol.toLowerCase().includes(searchLower) ||
+              (quote.longname || quote.shortname).toLowerCase().includes(searchLower)
+            );
+          });
+          setSuggestions(filteredQuotes.map((quote: any) => ({
             symbol: quote.symbol,
             longname: quote.longname || quote.shortname,
             logoUrl: quote.logoUrl
