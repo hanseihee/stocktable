@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Table,
@@ -68,6 +68,7 @@ const StockTable: React.FC = () => {
   const navigate = useNavigate();
   const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
   const isMobile = useMediaQuery(themeMui.breakpoints.down('sm'));
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Determine the symbol to use
   const currentSymbol = routeSymbol || localStorage.getItem('lastSymbol') || 'SPY';
@@ -215,26 +216,38 @@ const StockTable: React.FC = () => {
     return acc;
   }, {} as Record<string, number | null>);
 
-  // Add new function to fetch suggestions
-  const fetchSuggestions = async (query: string) => {
-    if (!query) {
-      setSuggestions([]);
-      return;
-    }
-    try {
-      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      if (data.quotes) {
-        setSuggestions(data.quotes.map((quote: any) => ({
-          symbol: quote.symbol,
-          longname: quote.longname || quote.shortname
-        })));
+  // Add debounced fetch function
+  const debouncedFetchSuggestions = useCallback(
+    async (query: string) => {
+      if (!query) {
+        setSuggestions([]);
+        return;
       }
-    } catch (error) {
-      console.error('Failed to fetch suggestions:', error);
-      setSuggestions([]);
-    }
-  };
+      try {
+        const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        if (data.quotes) {
+          setSuggestions(data.quotes.map((quote: any) => ({
+            symbol: quote.symbol,
+            longname: quote.longname || quote.shortname
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to fetch suggestions:', error);
+        setSuggestions([]);
+      }
+    },
+    []
+  );
+
+  // Add debounce effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      debouncedFetchSuggestions(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, debouncedFetchSuggestions]);
 
   const renderSearchBar = () => (
     <Box component="form" 
@@ -261,7 +274,7 @@ const StockTable: React.FC = () => {
         }}
         onInputChange={(event, newInputValue) => {
           setSelectedSymbol(newInputValue);
-          fetchSuggestions(newInputValue);
+          setSearchQuery(newInputValue);
         }}
         getOptionLabel={(option) => {
           if (typeof option === 'string') return option;
