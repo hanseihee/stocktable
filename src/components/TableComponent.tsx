@@ -1,3 +1,4 @@
+// https://query2.finance.yahoo.com/v1/finance/search?q=spy&lang=en-US&region=US&quotesCount=5&newsCount=0&listsCount=0&enableFuzzyQuery=false&quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_quote_single_token_query&newsQueryId=news_cie_vespa&enableCb=false&enableNavLinks=true&enableEnhancedTrivialQuery=true&enableResearchReports=false&enableCulturalAssets=true&enableLogoUrl=true&enableLists=false&recommendCount=0&enablePrivateCompany=true
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 

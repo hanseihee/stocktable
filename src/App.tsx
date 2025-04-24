@@ -51,6 +51,8 @@ interface TableData {
   [year: string]: (number | null)[];
 }
 
+type SearchOption = string | { symbol: string; longname: string; };
+
 const StockTable: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
@@ -61,6 +63,7 @@ const StockTable: React.FC = () => {
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<Array<{symbol: string, longname: string}>>([]);
   const { symbol: routeSymbol } = useParams<{ symbol?: string }>(); // Make symbol optional
   const navigate = useNavigate();
   const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
@@ -178,10 +181,11 @@ const StockTable: React.FC = () => {
   };
 
   // 검색 기록에서 항목 선택 핸들러
-  const handleHistorySelect = (event: React.SyntheticEvent, value: string | null) => {
+  const handleHistorySelect = (_event: React.SyntheticEvent, value: SearchOption | null) => {
     if (value) {
-      setSelectedSymbol(value); // Update input field
-      navigate(`/symbol/${value.toUpperCase()}`);
+      const symbol = typeof value === 'string' ? value : value.symbol;
+      setSelectedSymbol(symbol);
+      navigate(`/symbol/${symbol.toUpperCase()}`);
     }
   };
 
@@ -211,25 +215,76 @@ const StockTable: React.FC = () => {
     return acc;
   }, {} as Record<string, number | null>);
 
+  // Add new function to fetch suggestions
+  const fetchSuggestions = async (query: string) => {
+    if (!query) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const response = await fetch(`https://query2.finance.yahoo.com/v1/finance/search?q=${query}&lang=en-US&region=US&quotesCount=5&newsCount=0&listsCount=0&enableFuzzyQuery=false&quotesQueryId=tss_match_phrase_query&multiQuoteQueryId=multi_quote_single_token_query&newsQueryId=news_cie_vespa&enableCb=false&enableNavLinks=true&enableEnhancedTrivialQuery=true&enableResearchReports=false&enableCulturalAssets=true&enableLogoUrl=true&enableLists=false&recommendCount=0&enablePrivateCompany=true`);
+      const data = await response.json();
+      if (data.quotes) {
+        setSuggestions(data.quotes.map((quote: any) => ({
+          symbol: quote.symbol,
+          longname: quote.longname || quote.shortname
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to fetch suggestions:', error);
+      setSuggestions([]);
+    }
+  };
+
   const renderSearchBar = () => (
     <Box component="form" 
       onSubmit={(e) => { e.preventDefault(); handleFetchData(); }} 
       sx={{ 
         display: 'flex',
-        flexGrow: { xs: 0, sm: 1 }, // Allow growth on larger screens
+        flexGrow: { xs: 0, sm: 1 },
         maxWidth: { xs: '100%', sm: '680px' },
         gap: 1,
-        padding: { xs: '16px', sm: 0 }, // Add padding on mobile
-        order: { xs: 1, sm: 0 } // Change order on mobile
+        padding: { xs: '16px', sm: 0 },
+        order: { xs: 1, sm: 0 }
       }}
     >
       <Autocomplete
         freeSolo
-        options={searchHistory}
+        options={[...suggestions, ...searchHistory.map(symbol => ({ symbol, longname: symbol }))]}
         value={selectedSymbol}
-        onChange={handleHistorySelect}
+        onChange={(event, newValue) => {
+          if (newValue) {
+            const symbol = typeof newValue === 'string' ? newValue : newValue.symbol;
+            setSelectedSymbol(symbol);
+            navigate(`/symbol/${symbol.toUpperCase()}`);
+          }
+        }}
         onInputChange={(event, newInputValue) => {
           setSelectedSymbol(newInputValue);
+          fetchSuggestions(newInputValue);
+        }}
+        getOptionLabel={(option) => {
+          if (typeof option === 'string') return option;
+          return option.symbol;
+        }}
+        renderOption={(props, option) => {
+          if (typeof option === 'string') {
+            return (
+              <li {...props}>
+                <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
+                <ListItemText primary={option} />
+              </li>
+            );
+          }
+          return (
+            <li {...props}>
+              <SearchIcon fontSize="small" style={{ marginRight: 8 }} />
+              <ListItemText 
+                primary={option.symbol}
+                secondary={option.longname}
+              />
+            </li>
+          );
         }}
         sx={{
           flexGrow: 1,
@@ -257,12 +312,6 @@ const StockTable: React.FC = () => {
               )
             }}
           />
-        )}
-        renderOption={(props, option) => (
-          <li {...props}>
-            <HistoryIcon fontSize="small" style={{ marginRight: 8 }} />
-            <ListItemText primary={option} />
-          </li>
         )}
         ListboxProps={{
           style: { maxHeight: 300 }
