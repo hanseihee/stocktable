@@ -226,6 +226,7 @@ const StockTable: React.FC = () => {
       try {
         const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
         const data = await response.json();
+        console.log('API Response:', data); // Debug log
         if (data.quotes) {
           setSuggestions(data.quotes.map((quote: any) => ({
             symbol: quote.symbol,
