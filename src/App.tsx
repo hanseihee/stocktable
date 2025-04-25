@@ -130,6 +130,9 @@ const Tickipop: React.FC = () => {
     palette: {
       mode: darkMode ? 'dark' : 'light',
     },
+    typography: {
+      fontFamily: '"Noto Sans", sans-serif',
+    },
   });
 
   const months = [
@@ -293,7 +296,8 @@ const Tickipop: React.FC = () => {
         maxWidth: { xs: '100%', sm: '680px' },
         gap: 1,
         padding: { xs: '16px', sm: 0 },
-        order: { xs: 1, sm: 0 }
+        order: { xs: 1, sm: 0 },
+        position: 'relative'
       }}
     >
       <Autocomplete
@@ -348,19 +352,6 @@ const Tickipop: React.FC = () => {
             </li>
           );
         }}
-        sx={{
-          flexGrow: 1,
-          '& .MuiInputBase-root': {
-            backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
-            borderRadius: '8px',
-            '&:hover': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#404040' : '#e8e8e8'
-            },
-            '& fieldset': {
-              border: 'none'
-            }
-          }
-        }}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -369,12 +360,25 @@ const Tickipop: React.FC = () => {
             size="small"
             InputProps={{
               ...params.InputProps,
-              startAdornment: (
-                <SearchIcon sx={{ color: 'text.secondary', ml: 1, mr: 1 }} />
-              )
+              style: { height: '40px' }
             }}
           />
         )}
+        sx={{
+          flexGrow: 1,
+          '& .MuiInputBase-root': {
+            backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f5f5f5',
+            borderRadius: '50px',
+            paddingRight: '80px', // Make room for the wider search button
+            height: '40px',
+            '&:hover': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#404040' : '#e8e8e8'
+            },
+            '& fieldset': {
+              border: 'none'
+            }
+          }
+        }}
         ListboxProps={{
           style: { maxHeight: 300 }
         }}
@@ -385,10 +389,23 @@ const Tickipop: React.FC = () => {
         disabled={isLoading}
         sx={{ 
           minWidth: 'auto',
-          px: 3,
+          width: '72px',
+          height: '40px',
+          padding: 0,
+          borderRadius: '50px',
+          position: 'absolute',
+          right: '0',
+          top: '50%',
+          transform: 'translateY(-50%)',
           backgroundColor: '#00a400',
+          color: '#fff',
+          boxShadow: 'none',
           '&:hover': {
-            backgroundColor: '#008f00'
+            backgroundColor: '#008f00',
+            boxShadow: 'none'
+          },
+          '&:disabled': {
+            backgroundColor: '#ccc'
           }
         }}
       >
@@ -432,7 +449,7 @@ const Tickipop: React.FC = () => {
               }
             }}
           >
-            Tickipop
+            TICKIPOP
           </Typography>
 
           {!isMobile && renderSearchBar()} {/* Render search bar in Toolbar on non-mobile */} 
