@@ -700,6 +700,7 @@ const App: React.FC = () => {
       <Route path="/" element={<Tickipop />} />
       <Route path="/symbol/:symbol" element={<Tickipop />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Analytics />
     </Routes>
   );
 };
