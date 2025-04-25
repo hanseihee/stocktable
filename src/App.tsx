@@ -39,6 +39,7 @@ import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
 import { Routes, Route, Navigate, useParams, useNavigate, Link } from 'react-router-dom';
 import { Analytics } from "@vercel/analytics/react"
+import RealTimePrice from './components/RealTimePrice';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -483,8 +484,15 @@ const Tickipop: React.FC = () => {
             <Typography variant="h4" gutterBottom>
               {displaySymbol} {t('realTimeChart')}
             </Typography>
-            {/* @ts-ignore */}
-            <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
+            <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
+              <Box sx={{ flex: 1 }}>
+                {/* @ts-ignore */}
+                <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
+              </Box>
+              <Box sx={{ width: { xs: '100%', md: '300px' } }}>
+                <RealTimePrice symbol={displaySymbol} />
+              </Box>
+            </Box>
 
             <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
               {displaySymbol} {t('monthlyReturns')}
