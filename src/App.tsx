@@ -23,7 +23,10 @@ import {
   ListItemText,
   Divider,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Container,
+  Grid,
+  GridProps
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Helmet } from 'react-helmet';
@@ -53,7 +56,7 @@ interface TableData {
 
 type SearchOption = string | { symbol: string; longname: string; logoUrl?: string };
 
-const StockTable: React.FC = () => {
+const Tickipop: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
   const [darkMode, setDarkMode] = useState(false);
@@ -71,7 +74,7 @@ const StockTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Determine the symbol to use
-  const currentSymbol = routeSymbol || localStorage.getItem('lastSymbol') || 'SPY';
+  const currentSymbol = routeSymbol || localStorage.getItem('lastSymbol') || '';
 
   // 검색 기록 로드
   useEffect(() => {
@@ -157,14 +160,16 @@ const StockTable: React.FC = () => {
   // 페이지 로드 또는 심볼 변경 시 데이터 가져오기
   useEffect(() => {
     const upperSymbol = currentSymbol.toUpperCase();
-    fetchStockData(upperSymbol);
-    // Update search input only if it differs from the fetched symbol
-    if (selectedSymbol.toUpperCase() !== upperSymbol) {
-       setSelectedSymbol(upperSymbol);
-    }
-    // Navigate to the specific symbol URL if we landed on root
-    if (!routeSymbol && currentSymbol) {
-      navigate(`/symbol/${upperSymbol}`, { replace: true });
+    if (upperSymbol) {
+      fetchStockData(upperSymbol);
+      // Update search input only if it differs from the fetched symbol
+      if (selectedSymbol.toUpperCase() !== upperSymbol) {
+         setSelectedSymbol(upperSymbol);
+      }
+      // Navigate to the specific symbol URL if we landed on root
+      if (!routeSymbol && currentSymbol) {
+        navigate(`/symbol/${upperSymbol}`, { replace: true });
+      }
     }
   }, [currentSymbol, navigate, routeSymbol]); // Depend on currentSymbol
 
@@ -178,6 +183,7 @@ const StockTable: React.FC = () => {
     const upperSymbol = selectedSymbol.toUpperCase();
     if (upperSymbol && upperSymbol !== displaySymbol) { // Fetch only if symbol is valid and changed
       navigate(`/symbol/${upperSymbol}`);
+      setSelectedSymbol(''); // Clear the search input after search
     }
   };
 
@@ -369,7 +375,7 @@ const StockTable: React.FC = () => {
         <title>{displaySymbol || currentSymbol} {t('monthlyReturns')}</title>
         <meta name="description" content={`Track ${displaySymbol || currentSymbol} ${t('monthlyReturns')} and real-time updates.`} />
         <meta name="keywords" content={`${displaySymbol || currentSymbol}, stock market, ${t('monthlyReturns')}, real-time data`} />
-        <meta name="author" content="StockTable" />
+        <meta name="author" content="tickipop" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
@@ -398,7 +404,7 @@ const StockTable: React.FC = () => {
               }
             }}
           >
-            StockTable
+            Tickipop
           </Typography>
 
           {!isMobile && renderSearchBar()} {/* Render search bar in Toolbar on non-mobile */} 
@@ -614,6 +620,49 @@ const StockTable: React.FC = () => {
           </>
         )}
       </div>
+      <Box
+        component="footer"
+        sx={{
+          py: 3,
+          px: 2,
+          mt: 'auto',
+          backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#f5f5f5',
+          borderTop: '1px solid',
+          borderColor: theme.palette.mode === 'dark' ? '#333' : '#e5e5e5'
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 3
+          }}>
+            <Box sx={{ 
+              width: { xs: '100%', sm: '50%' },
+              textAlign: { xs: 'center', sm: 'left' }
+            }}>
+              <Typography variant="body2" color="text.secondary">
+                © {new Date().getFullYear()} Tickipop.com. All rights reserved.
+              </Typography>
+            </Box>
+            <Box sx={{ 
+              width: { xs: '100%', sm: '50%' },
+              display: 'flex',
+              justifyContent: { xs: 'center', sm: 'flex-end' },
+              gap: 2
+            }}>
+              <Link to="/privacy" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Typography variant="body2" color="text.secondary">Privacy Policy</Typography>
+              </Link>
+              <Link to="/terms" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Typography variant="body2" color="text.secondary">Terms of Service</Typography>
+              </Link>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 };
@@ -621,8 +670,8 @@ const StockTable: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<StockTable />} />
-      <Route path="/symbol/:symbol" element={<StockTable />} />
+      <Route path="/" element={<Tickipop />} />
+      <Route path="/symbol/:symbol" element={<Tickipop />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
