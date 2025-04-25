@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 interface TradingViewWidgetProps {
   darkMode?: boolean;
@@ -14,6 +15,8 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   const container = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<any>(null);
   const prevTickerRef = useRef<string>(ticker);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // 위젯 초기화 함수
   const initWidget = () => {
@@ -36,6 +39,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         enable_publishing: false,
         allow_symbol_change: true,
         container_id: container.current.id,
+        height: isMobile ? 250 : 500,
       });
       
       // 현재 ticker 저장
@@ -62,7 +66,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   // 다크모드가 변경될 때 위젯 재생성
   useEffect(() => {
     initWidget();
-  }, [darkMode]);
+  }, [darkMode, isMobile]);
 
   // shouldUpdate가 true이고 ticker가 변경되었을 때만 위젯 재생성
   useEffect(() => {
@@ -72,7 +76,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   }, [shouldUpdate, ticker]);
 
   return (
-    <div className="tradingview-widget-container" style={{ height: '500px' }}>
+    <div className="tradingview-widget-container" style={{ height: isMobile ? '250px' : '500px' }}>
       <div id="tradingview_widget" ref={container} style={{ height: '100%' }} />
     </div>
   );
