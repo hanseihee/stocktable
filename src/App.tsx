@@ -355,7 +355,7 @@ const Tickipop: React.FC = () => {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Search for stocks, symbols or companies"
+            placeholder="stocks, symbols or companies"
             variant="outlined"
             size="small"
             InputProps={{
@@ -397,11 +397,11 @@ const Tickipop: React.FC = () => {
           right: '0',
           top: '50%',
           transform: 'translateY(-50%)',
-          backgroundColor: '#00a400',
+          backgroundColor: theme.palette.mode === 'dark' ? '#2c3e50' : '#455d73',
           color: '#fff',
           boxShadow: 'none',
           '&:hover': {
-            backgroundColor: '#008f00',
+            backgroundColor: theme.palette.mode === 'dark' ? '#455d73' : '#2c3e50',
             boxShadow: 'none'
           },
           '&:disabled': {
@@ -425,10 +425,10 @@ const Tickipop: React.FC = () => {
       </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
       <AppBar position="static" sx={{ 
-        backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#1976d2',
+        backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#2c3e50',
         boxShadow: 'none',
         borderBottom: '1px solid',
-        borderColor: theme.palette.mode === 'dark' ? '#333' : '#e5e5e5'
+        borderColor: theme.palette.mode === 'dark' ? '#333' : '#455d73'
       }}>
         <Toolbar sx={{ 
           minHeight: '56px',

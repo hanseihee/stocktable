@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useTheme } from '@mui/material';
 
 interface RealTimePriceProps {
   symbol: string;
@@ -12,8 +13,8 @@ interface PriceData {
   changePercent: number;
 }
 
-const PriceContainer = styled.div`
-  background-color: #f8f9fa;
+const PriceContainer = styled.div<{ isDarkMode: boolean }>`
+  background-color: ${props => props.isDarkMode ? '#333' : '#f8f9fa'};
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -27,20 +28,27 @@ const PriceRow = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const PriceLabel = styled.span`
+const PriceLabel = styled.span<{ isDarkMode: boolean }>`
   font-weight: 600;
-  color: #495057;
+  color: ${props => props.isDarkMode ? '#e0e0e0' : '#495057'};
 `;
 
-const PriceValue = styled.span<{ isPositive?: boolean }>`
+const PriceValue = styled.span<{ isPositive?: boolean; isDarkMode: boolean }>`
   font-weight: 700;
-  color: ${props => props.isPositive ? '#28a745' : '#dc3545'};
+  color: ${props => {
+    if (props.isDarkMode) {
+      return props.isPositive ? '#4caf50' : '#f44336';
+    }
+    return props.isPositive ? '#28a745' : '#dc3545';
+  }};
 `;
 
 const RealTimePrice: React.FC<RealTimePriceProps> = ({ symbol, className }) => {
   const [priceData, setPriceData] = useState<PriceData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
 
   useEffect(() => {
     const fetchRealTimePrice = async () => {
@@ -75,14 +83,14 @@ const RealTimePrice: React.FC<RealTimePriceProps> = ({ symbol, className }) => {
   }
 
   return (
-    <PriceContainer>
+    <PriceContainer isDarkMode={isDarkMode}>
       <PriceRow>
-        <PriceLabel>Current Price</PriceLabel>
-        <PriceValue>${priceData.price.toFixed(2)}</PriceValue>
+        <PriceLabel isDarkMode={isDarkMode}>Current Price</PriceLabel>
+        <PriceValue isDarkMode={isDarkMode}>${priceData.price.toFixed(2)}</PriceValue>
       </PriceRow>
       <PriceRow>
-        <PriceLabel>Change</PriceLabel>
-        <PriceValue isPositive={priceData.change >= 0}>
+        <PriceLabel isDarkMode={isDarkMode}>Change</PriceLabel>
+        <PriceValue isPositive={priceData.change >= 0} isDarkMode={isDarkMode}>
           {priceData.change >= 0 ? '+' : ''}{priceData.change.toFixed(2)} ({priceData.changePercent.toFixed(2)}%)
         </PriceValue>
       </PriceRow>
