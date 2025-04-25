@@ -696,12 +696,14 @@ const Tickipop: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Tickipop />} />
-      <Route path="/symbol/:symbol" element={<Tickipop />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+    <>
+      <Routes>
+        <Route path="/" element={<Tickipop />} />
+        <Route path="/symbol/:symbol" element={<Tickipop />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
       <Analytics />
-    </Routes>
+    </>
   );
 };
 
