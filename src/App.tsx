@@ -55,7 +55,13 @@ interface TableData {
   [year: string]: (number | null)[];
 }
 
-type SearchOption = string | { symbol: string; longname: string; logoUrl?: string };
+type SearchOption = string | { 
+  symbol: string; 
+  longname: string; 
+  logoUrl?: string;
+  exchange?: string;
+  sector?: string;
+};
 
 const Tickipop: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -66,8 +72,8 @@ const Tickipop: React.FC = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('');
   const [shouldUpdateWidget, setShouldUpdateWidget] = useState(false);
   const [displaySymbol, setDisplaySymbol] = useState('');
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<Array<{symbol: string, longname: string, logoUrl?: string}>>([]);
+  const [searchHistory, setSearchHistory] = useState<SearchOption[]>([]);
+  const [suggestions, setSuggestions] = useState<SearchOption[]>([]);
   const { symbol: routeSymbol } = useParams<{ symbol?: string }>(); // Make symbol optional
   const navigate = useNavigate();
   const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
@@ -81,14 +87,32 @@ const Tickipop: React.FC = () => {
   useEffect(() => {
     const history = localStorage.getItem('searchHistory');
     if (history) {
-      setSearchHistory(JSON.parse(history));
+      try {
+        const parsedHistory = JSON.parse(history);
+        // Convert old format (string[]) to new format if needed
+        const formattedHistory = parsedHistory.map((item: string | SearchOption) => {
+          if (typeof item === 'string') {
+            return { symbol: item, longname: item };
+          }
+          return item;
+        });
+        setSearchHistory(formattedHistory);
+      } catch (error) {
+        console.error('Failed to parse search history:', error);
+        setSearchHistory([]);
+      }
     }
   }, []);
 
   // 검색 기록 저장
   const saveSearchHistory = (symbol: string) => {
     const upperSymbol = symbol.toUpperCase();
-    const newHistory = [upperSymbol, ...searchHistory.filter(item => item !== upperSymbol)].slice(0, 10);
+    const newHistory = [
+      { symbol: upperSymbol, longname: upperSymbol },
+      ...searchHistory.filter(item => 
+        typeof item === 'string' ? item !== upperSymbol : item.symbol !== upperSymbol
+      )
+    ].slice(0, 10);
     setSearchHistory(newHistory);
     localStorage.setItem('searchHistory', JSON.stringify(newHistory));
   };
@@ -237,7 +261,9 @@ const Tickipop: React.FC = () => {
           setSuggestions(data.quotes.map((quote: any) => ({
             symbol: quote.symbol,
             longname: quote.longname || quote.shortname,
-            logoUrl: quote.logoUrl
+            logoUrl: quote.logoUrl,
+            exchange: quote.exchDisp,
+            sector: quote.sectorDisp
           })));
         }
       } catch (error) {
@@ -271,7 +297,7 @@ const Tickipop: React.FC = () => {
     >
       <Autocomplete
         freeSolo
-        options={[...suggestions, ...searchHistory.map(symbol => ({ symbol, longname: symbol, logoUrl: undefined }))]}
+        options={[...suggestions, ...searchHistory]}
         value={selectedSymbol}
         onChange={(event, newValue) => {
           if (newValue) {
@@ -287,7 +313,7 @@ const Tickipop: React.FC = () => {
         }}
         getOptionLabel={(option) => {
           if (typeof option === 'string') return option;
-          return option.symbol;
+          return `${option.symbol} - ${option.longname}`;
         }}
         renderOption={(props, option) => {
           if (typeof option === 'string') {
@@ -315,8 +341,8 @@ const Tickipop: React.FC = () => {
                 <SearchIcon fontSize="small" style={{ marginRight: 8 }} />
               )}
               <ListItemText 
-                primary={option.symbol}
-                secondary={option.longname}
+                primary={`${option.symbol} - ${option.longname}`}
+                secondary={option.exchange ? `${option.exchange}${option.sector ? ` • ${option.sector}` : ''}` : undefined}
               />
             </li>
           );
@@ -337,7 +363,7 @@ const Tickipop: React.FC = () => {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Search for news, symbols or companies"
+            placeholder="Search for stocks, symbols or companies"
             variant="outlined"
             size="small"
             InputProps={{
