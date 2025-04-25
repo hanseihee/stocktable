@@ -38,6 +38,7 @@ import monthlyReturnsData from './data/monthlyReturn.json'; // JSON 파일 가�
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
 import { Routes, Route, Navigate, useParams, useNavigate, Link } from 'react-router-dom';
+import { Analytics } from "@vercel/analytics/react"
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -162,10 +163,8 @@ const Tickipop: React.FC = () => {
     const upperSymbol = currentSymbol.toUpperCase();
     if (upperSymbol) {
       fetchStockData(upperSymbol);
-      // Update search input only if it differs from the fetched symbol
-      if (selectedSymbol.toUpperCase() !== upperSymbol) {
-         setSelectedSymbol(upperSymbol);
-      }
+      // Clear the search input when loading a symbol from URL or localStorage
+      setSelectedSymbol('');
       // Navigate to the specific symbol URL if we landed on root
       if (!routeSymbol && currentSymbol) {
         navigate(`/symbol/${upperSymbol}`, { replace: true });
@@ -193,6 +192,7 @@ const Tickipop: React.FC = () => {
       const symbol = typeof value === 'string' ? value : value.symbol;
       setSelectedSymbol(symbol);
       navigate(`/symbol/${symbol.toUpperCase()}`);
+      setSelectedSymbol(''); // Clear the search input after selecting from history
     }
   };
 
@@ -278,6 +278,7 @@ const Tickipop: React.FC = () => {
             const symbol = typeof newValue === 'string' ? newValue : newValue.symbol;
             setSelectedSymbol(symbol);
             navigate(`/symbol/${symbol.toUpperCase()}`);
+            setSelectedSymbol(''); // Clear the search input after selecting from dropdown
           }
         }}
         onInputChange={(event, newInputValue) => {
