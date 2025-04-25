@@ -10,7 +10,6 @@ interface PriceData {
   price: number;
   change: number;
   changePercent: number;
-  lastUpdated: string;
 }
 
 const PriceContainer = styled.div`
@@ -36,12 +35,6 @@ const PriceLabel = styled.span`
 const PriceValue = styled.span<{ isPositive?: boolean }>`
   font-weight: 700;
   color: ${props => props.isPositive ? '#28a745' : '#dc3545'};
-`;
-
-const LastUpdated = styled.div`
-  font-size: 0.8rem;
-  color: #6c757d;
-  text-align: right;
 `;
 
 const RealTimePrice: React.FC<RealTimePriceProps> = ({ symbol, className }) => {
@@ -93,9 +86,6 @@ const RealTimePrice: React.FC<RealTimePriceProps> = ({ symbol, className }) => {
           {priceData.change >= 0 ? '+' : ''}{priceData.change.toFixed(2)} ({priceData.changePercent.toFixed(2)}%)
         </PriceValue>
       </PriceRow>
-      <LastUpdated>
-        Last updated: {new Date(priceData.lastUpdated).toLocaleTimeString()}
-      </LastUpdated>
     </PriceContainer>
   );
 };
