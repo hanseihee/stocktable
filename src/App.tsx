@@ -536,7 +536,7 @@ const Tickipop: React.FC = () => {
                 {/* @ts-ignore */}
                 <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
               </Box>
-              <Box sx={{ width: { xs: '100%', md: '300px' } }}>
+              <Box sx={{ width: { xs: '100%', md: '400px' } }}>
                 <RealTimePrice symbol={displaySymbol} />
                 <Box sx={{ mt: 2 }}>
                   <DrawdownChart symbol={displaySymbol} monthlyReturns={monthlyReturns} />
