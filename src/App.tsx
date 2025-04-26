@@ -81,6 +81,7 @@ const Tickipop: React.FC = () => {
   const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
   const isMobile = useMediaQuery(themeMui.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState('');
+  const [monthlyReturns, setMonthlyReturns] = useState<Record<string, number[]>>({});
 
   // Determine the symbol to use
   const currentSymbol = routeSymbol || localStorage.getItem('lastSymbol') || '';
@@ -170,6 +171,7 @@ const Tickipop: React.FC = () => {
       
       // 테이블 데이터 설정
       setReturnsData(result.data);
+      setMonthlyReturns(result.data);
       // setSelectedSymbol(symbolToFetch); // Keep input separate from display/fetch
       setDisplaySymbol(symbolToFetch);
       
@@ -510,7 +512,7 @@ const Tickipop: React.FC = () => {
               <Box sx={{ width: { xs: '100%', md: '300px' } }}>
                 <RealTimePrice symbol={displaySymbol} />
                 <Box sx={{ mt: 2 }}>
-                  <DrawdownChart symbol={displaySymbol} />
+                  <DrawdownChart symbol={displaySymbol} monthlyReturns={monthlyReturns} />
                 </Box>
               </Box>
             </Box>
