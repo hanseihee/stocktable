@@ -1,57 +1,85 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
+import monthlyReturnsData from '../data/monthlyReturn.json';
 
 interface DrawdownChartProps {
   symbol: string;
 }
 
+interface ChartDataPoint {
+  date: string;
+  drawdown: number;
+}
+
+interface MonthlyReturnsData {
+  [year: string]: number[];
+}
+
+const calculateDrawdown = (monthlyReturns: number[]): number[] => {
+  let peak = 100; // Start with base 100
+  let currentValue = 100;
+  const drawdowns: number[] = [];
+
+  for (const monthReturn of monthlyReturns) {
+    // Calculate new value based on monthly return
+    currentValue = currentValue * (1 + monthReturn / 100);
+    
+    // Update peak if we have a new high
+    peak = Math.max(peak, currentValue);
+    
+    // Calculate drawdown percentage
+    const drawdownPercent = ((currentValue - peak) / peak) * 100;
+    drawdowns.push(drawdownPercent);
+  }
+
+  return drawdowns;
+};
+
 const DrawdownChart: React.FC<DrawdownChartProps> = ({ symbol }) => {
-  const [drawdownData, setDrawdownData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDrawdownData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/drawdown?symbol=${symbol}`);
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch drawdown data');
-        }
-
-        setDrawdownData(data.drawdown);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading(false);
+  // Get the last 20 years of data
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 20;
+  
+  // Filter years and prepare data
+  const years = Object.keys(monthlyReturnsData as MonthlyReturnsData)
+    .filter(year => parseInt(year) >= startYear)
+    .sort();
+  
+  // Calculate drawdown for each month
+  const allMonthlyReturns: number[] = [];
+  years.forEach(year => {
+    const yearData = (monthlyReturnsData as MonthlyReturnsData)[year];
+    allMonthlyReturns.push(...yearData.filter((val: number | null): val is number => val !== null));
+  });
+  
+  const drawdowns = calculateDrawdown(allMonthlyReturns);
+  
+  // Create data points with dates
+  const chartData: ChartDataPoint[] = [];
+  let monthIndex = 0;
+  
+  years.forEach(year => {
+    const yearData = (monthlyReturnsData as MonthlyReturnsData)[year];
+    yearData.forEach((_: number | null, month: number) => {
+      if (drawdowns[monthIndex] !== undefined) {
+        chartData.push({
+          date: new Date(parseInt(year), month).toISOString(),
+          drawdown: drawdowns[monthIndex]
+        });
+        monthIndex++;
       }
-    };
-
-    if (symbol) {
-      fetchDrawdownData();
-    }
-  }, [symbol]);
-
-  if (isLoading) {
-    return <div>Loading drawdown data...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+    });
+  });
 
   return (
     <Paper sx={{ p: 2, height: '300px' }}>
       <Typography variant="h6" gutterBottom>
-        Maximum Drawdown
+        Maximum Drawdown (Last 20 Years)
       </Typography>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={drawdownData}
+          data={chartData}
           margin={{
             top: 5,
             right: 30,
@@ -65,8 +93,8 @@ const DrawdownChart: React.FC<DrawdownChartProps> = ({ symbol }) => {
             tickFormatter={(value) => new Date(value).getFullYear().toString()}
           />
           <YAxis
-            tickFormatter={(value) => `${value}%`}
-            domain={['dataMin', 'dataMax']}
+            tickFormatter={(value) => `${value.toFixed(1)}%`}
+            domain={['dataMin', Math.max(0, Math.ceil(Math.max(...drawdowns)))]}
           />
           <Tooltip
             formatter={(value: number) => [`${value.toFixed(2)}%`, 'Drawdown']}
@@ -75,7 +103,7 @@ const DrawdownChart: React.FC<DrawdownChartProps> = ({ symbol }) => {
           <Line
             type="monotone"
             dataKey="drawdown"
-            stroke="#ff0000"
+            stroke="#2196f3"
             dot={false}
             strokeWidth={1.5}
           />
