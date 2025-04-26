@@ -65,6 +65,15 @@ type SearchOption = string | {
   sector?: string;
 };
 
+// Add this near the top of the file, outside of any component
+const generateMetaDescription = (symbol: string) => {
+  return `Track ${symbol} stock performance with real-time data, monthly returns analysis, and maximum drawdown metrics. Get comprehensive insights and historical performance data for ${symbol}.`;
+};
+
+const generateMetaKeywords = (symbol: string) => {
+  return `${symbol} stock, ${symbol} analysis, ${symbol} performance, monthly returns, maximum drawdown, stock market, financial charts, market analysis, real-time stock data, technical analysis`;
+};
+
 const Tickipop: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
@@ -420,10 +429,28 @@ const Tickipop: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Helmet>
-        <title>{displaySymbol || currentSymbol} {t('monthlyReturns')}</title>
-        <meta name="description" content={`Track ${displaySymbol || currentSymbol} ${t('monthlyReturns')} and real-time updates.`} />
-        <meta name="keywords" content={`${displaySymbol || currentSymbol}, stock market, ${t('monthlyReturns')}, real-time data`} />
-        <meta name="author" content="tickipop" />
+        <title>
+          {displaySymbol ? `${displaySymbol} Stock Analysis - Tickipop` : 'Tickipop - Stock Analysis & Performance Tracking'}
+        </title>
+        <meta name="description" content={displaySymbol ? generateMetaDescription(displaySymbol) : 'Track stock performance with monthly returns, maximum drawdown analysis, and real-time market data. Get comprehensive stock market insights and historical performance metrics.'} />
+        <meta name="keywords" content={displaySymbol ? generateMetaKeywords(displaySymbol) : 'stock analysis, monthly returns, maximum drawdown, stock market, financial charts, market analysis, stock performance, investment tools, real-time stock data, technical analysis'} />
+        
+        {/* OpenGraph tags */}
+        <meta property="og:title" content={displaySymbol ? `${displaySymbol} Stock Analysis - Tickipop` : 'Tickipop - Stock Analysis & Performance Tracking'} />
+        <meta property="og:description" content={displaySymbol ? generateMetaDescription(displaySymbol) : 'Track stock performance with monthly returns, maximum drawdown analysis, and real-time market data.'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://tickipop.com${displaySymbol ? `/symbol/${displaySymbol}` : ''}`} />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:title" content={displaySymbol ? `${displaySymbol} Stock Analysis - Tickipop` : 'Tickipop - Stock Analysis & Performance Tracking'} />
+        <meta name="twitter:description" content={displaySymbol ? generateMetaDescription(displaySymbol) : 'Track stock performance with monthly returns, maximum drawdown analysis, and real-time market data.'} />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href={`https://tickipop.com${displaySymbol ? `/symbol/${displaySymbol}` : ''}`} />
+        
+        {/* Additional meta tags */}
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Tickipop" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
@@ -505,7 +532,7 @@ const Tickipop: React.FC = () => {
               {displaySymbol} {t('realTimeChart')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
-              <Box sx={{ flex: 1 }}>
+              <Box sx={{ flex: 1, width: { md: '85%' } }}>
                 {/* @ts-ignore */}
                 <TradingViewWidget darkMode={darkMode} ticker={displaySymbol} shouldUpdate={shouldUpdateWidget} />
               </Box>

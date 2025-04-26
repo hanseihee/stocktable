@@ -103,7 +103,7 @@ const DrawdownChart: React.FC<DrawdownChartProps> = ({ symbol, monthlyReturns })
   return (
     <Paper sx={{ p: 2, height: '300px' }}>
       <Typography variant="h6" gutterBottom>
-        Maximum Drawdown (Last 20 Years)
+        Maximum Drawdown
       </Typography>
       <ResponsiveContainer width="100%" height="80%">
         <LineChart
