@@ -40,6 +40,7 @@ import TradingViewWidget from './components/TradingViewWidget';
 import { Routes, Route, Navigate, useParams, useNavigate, Link } from 'react-router-dom';
 import { Analytics } from "@vercel/analytics/react"
 import RealTimePrice from './components/RealTimePrice';
+import DrawdownChart from './components/DrawdownChart';
 
 const getCellColor = (value: number | null): string => {
   if (value != null) {
@@ -508,6 +509,9 @@ const Tickipop: React.FC = () => {
               </Box>
               <Box sx={{ width: { xs: '100%', md: '300px' } }}>
                 <RealTimePrice symbol={displaySymbol} />
+                <Box sx={{ mt: 2 }}>
+                  <DrawdownChart symbol={displaySymbol} />
+                </Box>
               </Box>
             </Box>
 
