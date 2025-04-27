@@ -22,5 +22,11 @@
       "december": "December"
     },
     "error.404": "404 Not Found",
-    "error.failedToFetchData": "Failed to fetch data"
-  }
+    "error.failedToFetchData": "Failed to fetch data",
+    "loading.data": "Loading data...",
+    "search.placeholder": "stocks, symbols or companies",
+    "footer.copyright": "© {{year}} Tickipop.com. All rights reserved.",
+    "footer.privacy": "Privacy Policy",
+    "footer.terms": "Terms of Service",
+    "table.yearlyTotal": "Yearly Total"
+}

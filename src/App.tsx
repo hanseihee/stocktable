@@ -371,7 +371,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="stocks, symbols or companies"
+            placeholder={t('search.placeholder')}
             variant="outlined"
             size="small"
             InputProps={{
@@ -525,7 +525,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
 
       <div style={{ padding: '20px' }}>
         {isLoading ? (
-          <div className="loading">데이터를 불러오는 중...</div>
+          <div className="loading">{t('loading.data')}</div>
         ) : error ? (
           <div className="error">{error}</div>
         ) : null}
@@ -602,7 +602,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
                         padding: '12px 8px'
                       }}
                     >
-                      연간 합계
+                      {t('table.yearlyTotal')}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -733,7 +733,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
               textAlign: { xs: 'center', sm: 'left' }
             }}>
               <Typography variant="body2" color="text.secondary">
-                © {new Date().getFullYear()} Tickipop.com. All rights reserved.
+                {t('footer.copyright', { year: new Date().getFullYear() })}
               </Typography>
             </Box>
             <Box sx={{ 
@@ -743,10 +743,10 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
               gap: 2
             }}>
               <Link to="/privacy" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <Typography variant="body2" color="text.secondary">Privacy Policy</Typography>
+                <Typography variant="body2" color="text.secondary">{t('footer.privacy')}</Typography>
               </Link>
               <Link to="/terms" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <Typography variant="body2" color="text.secondary">Terms of Service</Typography>
+                <Typography variant="body2" color="text.secondary">{t('footer.terms')}</Typography>
               </Link>
             </Box>
           </Box>
