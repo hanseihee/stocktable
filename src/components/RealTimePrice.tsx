@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '@mui/material';
 
-interface RealTimePriceProps {
+interface RealTimePriceProps { 
   symbol: string;
   className?: string;
 }
