@@ -209,12 +209,12 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       fetchStockData(upperSymbol);
       // Clear the search input when loading a symbol from URL or localStorage
       setSelectedSymbol('');
-      // Navigate to the specific symbol URL if we landed on root
-      if (!routeSymbol && currentSymbol) {
+      // Only navigate if we're not using the defaultSymbol
+      if (!routeSymbol && currentSymbol && !defaultSymbol) {
         navigate(`/symbol/${upperSymbol}`, { replace: true });
       }
     }
-  }, [currentSymbol, navigate, routeSymbol]); // Depend on currentSymbol
+  }, [currentSymbol, navigate, routeSymbol, defaultSymbol]); // Add defaultSymbol to dependencies
 
   // 심볼 입력 필드 변경 핸들러
   const handleSymbolChange = (event: React.ChangeEvent<HTMLInputElement>) => {
