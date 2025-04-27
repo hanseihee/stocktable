@@ -74,7 +74,11 @@ const generateMetaKeywords = (symbol: string) => {
   return `${symbol} stock, ${symbol} analysis, ${symbol} performance, monthly returns, maximum drawdown, stock market, financial charts, market analysis, real-time stock data, technical analysis`;
 };
 
-const Tickipop: React.FC = () => {
+interface TickipopProps {
+  defaultSymbol?: string;
+}
+
+const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
   const [darkMode, setDarkMode] = useState(false);
@@ -85,15 +89,15 @@ const Tickipop: React.FC = () => {
   const [displaySymbol, setDisplaySymbol] = useState('');
   const [searchHistory, setSearchHistory] = useState<SearchOption[]>([]);
   const [suggestions, setSuggestions] = useState<SearchOption[]>([]);
-  const { symbol: routeSymbol } = useParams<{ symbol?: string }>(); // Make symbol optional
+  const { symbol: routeSymbol } = useParams<{ symbol?: string }>();
   const navigate = useNavigate();
-  const themeMui = useTheme(); // Renamed to avoid conflict with local theme variable
+  const themeMui = useTheme();
   const isMobile = useMediaQuery(themeMui.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState('');
   const [monthlyReturns, setMonthlyReturns] = useState<Record<string, number[]>>({});
 
   // Determine the symbol to use
-  const currentSymbol = routeSymbol || localStorage.getItem('lastSymbol') || '';
+  const currentSymbol = routeSymbol || defaultSymbol || localStorage.getItem('lastSymbol') || '';
 
   // 검색 기록 로드
   useEffect(() => {
@@ -756,7 +760,7 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Tickipop />} />
+        <Route path="/" element={<Tickipop defaultSymbol="SPY" />} />
         <Route path="/symbol/:symbol" element={<Tickipop />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

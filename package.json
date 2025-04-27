@@ -57,6 +57,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-helmet": "^6.1.11"
+    "@types/react-helmet": "^6.1.11",
+    "@types/react-router-dom": "^5.3.3"
   }
 }
