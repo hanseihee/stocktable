@@ -23,27 +23,35 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     if (container.current && 'TradingView' in window) {
       // 기존 위젯이 있으면 제거
       if (widgetRef.current) {
-        widgetRef.current.remove();
+        try {
+          widgetRef.current.remove();
+        } catch (error) {
+          console.warn('Error removing TradingView widget:', error);
+        }
       }
       
       // 새 위젯 생성
-      widgetRef.current = new (window as any).TradingView.widget({
-        autosize: true,
-        symbol: ticker,
-        interval: 'D',
-        timezone: 'Asia/Seoul',
-        theme: darkMode ? 'dark' : 'light',
-        style: '1',
-        locale: 'kr',
-        toolbar_bg: darkMode ? '#1e222d' : '#f1f3f6',
-        enable_publishing: false,
-        allow_symbol_change: true,
-        container_id: container.current.id,
-        height: isMobile ? 250 : 500,
-      });
-      
-      // 현재 ticker 저장
-      prevTickerRef.current = ticker;
+      try {
+        widgetRef.current = new (window as any).TradingView.widget({
+          autosize: true,
+          symbol: ticker,
+          interval: 'D',
+          timezone: 'Asia/Seoul',
+          theme: darkMode ? 'dark' : 'light',
+          style: '1',
+          locale: 'kr',
+          toolbar_bg: darkMode ? '#1e222d' : '#f1f3f6',
+          enable_publishing: false,
+          allow_symbol_change: true,
+          container_id: container.current.id,
+          height: isMobile ? 250 : 500,
+        });
+        
+        // 현재 ticker 저장
+        prevTickerRef.current = ticker;
+      } catch (error) {
+        console.error('Error creating TradingView widget:', error);
+      }
     }
   }; 
 
@@ -58,19 +66,25 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     return () => {
       script.remove();
       if (widgetRef.current) {
-        widgetRef.current.remove();
+        try {
+          widgetRef.current.remove();
+        } catch (error) {
+          console.warn('Error removing TradingView widget during cleanup:', error);
+        }
       }
     };
   }, []);
 
   // 다크모드가 변경될 때 위젯 재생성
   useEffect(() => {
-    initWidget();
+    if (container.current) {
+      initWidget();
+    }
   }, [darkMode, isMobile]);
 
   // shouldUpdate가 true이고 ticker가 변경되었을 때만 위젯 재생성
   useEffect(() => {
-    if (shouldUpdate && ticker !== prevTickerRef.current) {
+    if (shouldUpdate && ticker !== prevTickerRef.current && container.current) {
       initWidget();
     }
   }, [shouldUpdate, ticker]);
