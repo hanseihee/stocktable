@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTheme, useMediaQuery } from '@mui/material';
 
 interface TradingViewWidgetProps {
@@ -15,6 +15,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   const container = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<any>(null);
   const prevTickerRef = useRef<string>(ticker);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -24,7 +25,11 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       // 기존 위젯이 있으면 제거
       if (widgetRef.current) {
         try {
-          widgetRef.current.remove();
+          // 위젯 요소가 DOM에 존재하는지 확인
+          const widgetElement = document.getElementById('tradingview_widget');
+          if (widgetElement && widgetElement.parentNode) {
+            widgetRef.current.remove();
+          }
         } catch (error) {
           console.warn('Error removing TradingView widget:', error);
         }
@@ -57,17 +62,30 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
 
   // 스크립트 로드 및 위젯 초기화
   useEffect(() => {
+    // 이미 스크립트가 로드되어 있는지 확인
+    if (document.querySelector('script[src="https://s3.tradingview.com/tv.js"]')) {
+      setIsScriptLoaded(true);
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
-    script.onload = initWidget;
+    script.onload = () => {
+      setIsScriptLoaded(true);
+      initWidget();
+    };
     document.head.appendChild(script);
 
     return () => {
-      script.remove();
+      // 컴포넌트 언마운트 시 위젯 제거
       if (widgetRef.current) {
         try {
-          widgetRef.current.remove();
+          // 위젯 요소가 DOM에 존재하는지 확인
+          const widgetElement = document.getElementById('tradingview_widget');
+          if (widgetElement && widgetElement.parentNode) {
+            widgetRef.current.remove();
+          }
         } catch (error) {
           console.warn('Error removing TradingView widget during cleanup:', error);
         }
@@ -75,19 +93,26 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     };
   }, []);
 
-  // 다크모드가 변경될 때 위젯 재생성
+  // 스크립트가 로드되면 위젯 초기화
   useEffect(() => {
-    if (container.current) {
+    if (isScriptLoaded && container.current) {
       initWidget();
     }
-  }, [darkMode, isMobile]);
+  }, [isScriptLoaded]);
+
+  // 다크모드가 변경될 때 위젯 재생성
+  useEffect(() => {
+    if (isScriptLoaded && container.current) {
+      initWidget();
+    }
+  }, [darkMode, isMobile, isScriptLoaded]);
 
   // shouldUpdate가 true이고 ticker가 변경되었을 때만 위젯 재생성
   useEffect(() => {
-    if (shouldUpdate && ticker !== prevTickerRef.current && container.current) {
+    if (isScriptLoaded && shouldUpdate && ticker !== prevTickerRef.current && container.current) {
       initWidget();
     }
-  }, [shouldUpdate, ticker]);
+  }, [shouldUpdate, ticker, isScriptLoaded]);
 
   return (
     <div className="tradingview-widget-container" style={{ height: isMobile ? '250px' : '500px' }}>
