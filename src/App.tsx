@@ -7,6 +7,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import './i18n';  // i18n 초기화
 import {
   Table,
   TableBody,
@@ -49,6 +50,8 @@ import { Analytics } from "@vercel/analytics/react"
 import RealTimePrice from './components/RealTimePrice';
 import DrawdownChart from './components/DrawdownChart';
 import { changeLanguage as changeI18nLanguage } from './i18n';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
 
 // 색상 관련 상수
 const COLORS = {
@@ -545,38 +548,72 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
     <ThemeProvider theme={theme}>
       {/* SEO 및 메타 태그 설정 */}
       <Helmet>
-        {(() => {
-          const metaTags = generateMetaTags(
-            displaySymbol, 
-            displaySymbol ? `${displaySymbol} Stock Analysis - Tickipop` : 'Tickipop - Stock Analysis & Performance Tracking'
-          );
-          
-          return (
-            <>
-              <title>{metaTags.title}</title>
-              <meta name="description" content={metaTags.description} />
-              <meta name="keywords" content={metaTags.keywords} />
-              
-              {/* OpenGraph 태그 */}
-              <meta property="og:title" content={metaTags.ogTitle} />
-              <meta property="og:description" content={metaTags.ogDescription} />
-              <meta property="og:type" content="website" />
-              <meta property="og:url" content={metaTags.ogUrl} />
-              
-              {/* Twitter 카드 태그 */}
-              <meta name="twitter:title" content={metaTags.twitterTitle} />
-              <meta name="twitter:description" content={metaTags.twitterDescription} />
-              
-              {/* 정규 URL */}
-              <link rel="canonical" href={metaTags.canonicalUrl} />
-              
-              {/* 추가 메타 태그 */}
-              <meta name="robots" content="index, follow" />
-              <meta name="author" content="Tickipop" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            </>
-          );
-        })()}
+        <title>
+          {displaySymbol 
+            ? `${displaySymbol} Stock Analysis - Tickipop` 
+            : 'Tickipop - Stock Analysis & Performance Tracking'
+          }
+        </title>
+        <meta 
+          name="description" 
+          content={displaySymbol 
+            ? `Track ${displaySymbol} stock performance with real-time data, monthly returns analysis, and maximum drawdown metrics. Get comprehensive insights and historical performance data for ${displaySymbol}.`
+            : 'Track stock performance with monthly returns, maximum drawdown analysis, and real-time market data. Get comprehensive stock market insights and historical performance metrics.'
+          } 
+        />
+        <meta 
+          name="keywords" 
+          content={displaySymbol 
+            ? `${displaySymbol} stock, ${displaySymbol} analysis, ${displaySymbol} performance, monthly returns, maximum drawdown, stock market, financial charts, market analysis, real-time stock data, technical analysis`
+            : 'stock analysis, monthly returns, maximum drawdown, stock market, financial charts, market analysis, stock performance, investment tools, real-time stock data, technical analysis'
+          } 
+        />
+        <meta 
+          property="og:title" 
+          content={displaySymbol 
+            ? `${displaySymbol} Stock Analysis - Tickipop` 
+            : 'Tickipop - Stock Analysis & Performance Tracking'
+          } 
+        />
+        <meta 
+          property="og:description" 
+          content={displaySymbol 
+            ? `Track ${displaySymbol} stock performance with real-time data, monthly returns analysis, and maximum drawdown metrics.`
+            : 'Track stock performance with monthly returns, maximum drawdown analysis, and real-time market data.'
+          } 
+        />
+        <meta property="og:type" content="website" />
+        <meta 
+          property="og:url" 
+          content={displaySymbol 
+            ? `https://tickipop.com/symbol/${displaySymbol}` 
+            : 'https://tickipop.com'
+          } 
+        />
+        <meta 
+          name="twitter:title" 
+          content={displaySymbol 
+            ? `${displaySymbol} Stock Analysis - Tickipop` 
+            : 'Tickipop - Stock Analysis & Performance Tracking'
+          } 
+        />
+        <meta 
+          name="twitter:description" 
+          content={displaySymbol 
+            ? `Track ${displaySymbol} stock performance with real-time data, monthly returns analysis, and maximum drawdown metrics.`
+            : 'Track stock performance with monthly returns, maximum drawdown analysis, and real-time market data.'
+          } 
+        />
+        <link 
+          rel="canonical" 
+          href={displaySymbol 
+            ? `https://tickipop.com/symbol/${displaySymbol}` 
+            : 'https://tickipop.com'
+          } 
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Tickipop" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       <CssBaseline /> {/* 전역 스타일 적용 */}
       
@@ -900,10 +937,13 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
  * 라우팅 설정 및 메인 컴포넌트 렌더링
  */
 const App: React.FC = () => {
+  const { t } = useTranslation();
   // 라우트 설정
   const routes = [
     { path: "/", element: <Tickipop defaultSymbol="SPY" /> },
     { path: "/symbol/:symbol", element: <Tickipop /> },
+    { path: "/privacy", element: <PrivacyPolicy /> },
+    { path: "/terms", element: <TermsOfService /> },
     { path: "*", element: <Navigate to="/" replace /> }
   ];
 

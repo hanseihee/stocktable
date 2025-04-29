@@ -1,0 +1,74 @@
+{
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 29, 2025",
+    "introduction": {
+      "title": "Introduction",
+      "content": "Welcome to www.tickipop.com ('we,' 'us,' or 'our'). This Privacy Policy explains how we handle information when you visit and use our website."
+    },
+    "noPersonalInfo": {
+      "title": "No Personal Information Collected",
+      "content": "We do not collect, process, store, or share any personal information (such as name, email address, telephone number, or IP address) from visitors. All content and features on our site are available without registration."
+    },
+    "cookies": {
+      "title": "Cookies and Analytics",
+      "content": "Cookies: We do not use cookies to track or identify individual users. Analytics: We do not employ third-party analytics or tracking tools that collect personal data."
+    },
+    "thirdParty": {
+      "title": "Third-Party Links",
+      "content": "Our site may contain links to external websites. These sites have their own privacy practices. We are not responsible for their content or privacy policies."
+    },
+    "children": {
+      "title": "Children's Privacy",
+      "content": "Our site is intended for a general audience and does not target children under the age of 13. Since we do not collect any personal information, no data from minors is gathered."
+    },
+    "changes": {
+      "title": "Policy Changes",
+      "content": "We may update this Privacy Policy from time to time. When we do, we will revise the 'Last updated' date at the top. Continued use of our site after changes constitutes acceptance of the revised policy."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "content": "If you have any questions about this Privacy Policy, please contact us at: support@tickipop.com"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: April 29, 2025",
+    "acceptance": {
+      "title": "Acceptance of Terms",
+      "content": "By accessing or using www.tickipop.com ('the Service'), you agree to abide by these Terms of Service ('Terms'). If you do not agree, please do not use the Service."
+    },
+    "description": {
+      "title": "Description of Service",
+      "content": "We provide informational content and resources via our website. All content is offered 'as is' and for general information purposes only."
+    },
+    "conduct": {
+      "title": "User Conduct",
+      "content": "You agree not to: Engage in any unlawful, fraudulent, or harmful activities. Attempt to gain unauthorized access to our systems. Disrupt or interfere with the functionality of the Service."
+    },
+    "intellectual": {
+      "title": "Intellectual Property",
+      "content": "All content, logos, and materials on this website are the property of www.tickipop.com or its licensors and are protected by copyright and trademark laws. You may view and download materials for personal, non-commercial use only."
+    },
+    "warranties": {
+      "title": "Disclaimer of Warranties",
+      "content": "The Service is provided 'as is' and 'as available' without warranties of any kind. We do not guarantee the accuracy, completeness, or reliability of any content."
+    },
+    "liability": {
+      "title": "Limitation of Liability",
+      "content": "To the fullest extent permitted by law, www.tickipop.com and its affiliates shall not be liable for any indirect, incidental, special, or consequential damages arising out of your use of the Service."
+    },
+    "governing": {
+      "title": "Governing Law",
+      "content": "These Terms are governed by the laws of the Republic of Korea, without regard to its conflict of laws principles."
+    },
+    "changes": {
+      "title": "Changes to Terms",
+      "content": "We may modify these Terms at any time. When changes are made, we will update the 'Last updated' date above. Your continued use of the Service after modifications constitutes acceptance of the new Terms."
+    },
+    "contact": {
+      "title": "Contact Information",
+      "content": "For questions or concerns regarding these Terms, please contact us at: support@tickipop.com"
+    }
+  }
+} 
