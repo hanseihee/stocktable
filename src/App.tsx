@@ -85,7 +85,7 @@ const getCellColor = (value: number | null): string => {
 
 // 테이블 데이터 타입 정의
 interface TableData {
-  [year: string]: (number | null)[];
+  [year: string]: (number | null)[]; 
 }
 
 /**
