@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Typography, Box, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet';
@@ -9,6 +9,14 @@ const TermsOfService: React.FC = () => {
   // 디버깅을 위한 콘솔 로그
   console.log('Current language:', i18n.language);
   console.log('Translation test:', t('terms.title'));
+  
+  // 컴포넌트 마운트 시 로그
+  useEffect(() => {
+    console.log('TermsOfService component mounted');
+    return () => {
+      console.log('TermsOfService component unmounted');
+    };
+  }, []);
 
   return (
     <>

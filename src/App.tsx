@@ -938,21 +938,18 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
  */
 const App: React.FC = () => {
   const { t } = useTranslation();
-  // 라우트 설정
-  const routes = [
-    { path: "/", element: <Tickipop defaultSymbol="SPY" /> },
-    { path: "/symbol/:symbol", element: <Tickipop /> },
-    { path: "/privacy", element: <PrivacyPolicy /> },
-    { path: "/terms", element: <TermsOfService /> },
-    { path: "*", element: <Navigate to="/" replace /> }
-  ];
-
+  
+  // 디버깅을 위한 콘솔 로그
+  console.log('App component rendered');
+  
   return (
     <>
       <Routes>
-        {routes.map((route, index) => (
-          <Route key={index} path={route.path} element={route.element} />
-        ))}
+        <Route path="/" element={<Tickipop defaultSymbol="SPY" />} />
+        <Route path="/symbol/:symbol" element={<Tickipop />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Analytics />
     </>
