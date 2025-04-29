@@ -37,9 +37,10 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       
       // 새 위젯 생성
       try {
-        widgetRef.current = new (window as any).TradingView.widget({
+        // 위젯 설정 객체 생성 - 모든 속성이 올바른 타입인지 확인
+        const widgetOptions = {
           autosize: true,
-          symbol: ticker,
+          symbol: ticker || 'SPY', // 기본값 제공
           interval: 'D',
           timezone: 'Asia/Seoul',
           theme: darkMode ? 'dark' : 'light',
@@ -50,10 +51,14 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
           allow_symbol_change: true,
           container_id: container.current.id,
           height: isMobile ? 250 : 500,
-        });
+          // 추가 속성 제거 - 스키마 검증 오류 방지
+        };
+        
+        // 위젯 생성
+        widgetRef.current = new (window as any).TradingView.widget(widgetOptions);
         
         // 현재 ticker 저장
-        prevTickerRef.current = ticker;
+        prevTickerRef.current = ticker || 'SPY';
       } catch (error) {
         console.error('Error creating TradingView widget:', error);
       }
@@ -73,7 +78,10 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     script.async = true;
     script.onload = () => {
       setIsScriptLoaded(true);
-      initWidget();
+      // 스크립트 로드 후 약간의 지연을 두고 위젯 초기화
+      setTimeout(() => {
+        initWidget();
+      }, 100);
     };
     document.head.appendChild(script);
 
@@ -96,21 +104,30 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   // 스크립트가 로드되면 위젯 초기화
   useEffect(() => {
     if (isScriptLoaded && container.current) {
-      initWidget();
+      // 약간의 지연을 두고 위젯 초기화
+      setTimeout(() => {
+        initWidget();
+      }, 100);
     }
   }, [isScriptLoaded]);
 
   // 다크모드가 변경될 때 위젯 재생성
   useEffect(() => {
     if (isScriptLoaded && container.current) {
-      initWidget();
+      // 약간의 지연을 두고 위젯 초기화
+      setTimeout(() => {
+        initWidget();
+      }, 100);
     }
   }, [darkMode, isMobile, isScriptLoaded]);
 
   // shouldUpdate가 true이고 ticker가 변경되었을 때만 위젯 재생성
   useEffect(() => {
     if (isScriptLoaded && shouldUpdate && ticker !== prevTickerRef.current && container.current) {
-      initWidget();
+      // 약간의 지연을 두고 위젯 초기화
+      setTimeout(() => {
+        initWidget();
+      }, 100);
     }
   }, [shouldUpdate, ticker, isScriptLoaded]);
 
