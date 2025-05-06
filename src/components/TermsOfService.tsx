@@ -11,7 +11,7 @@ const TermsOfService: React.FC = () => {
   console.log('Translation test:', t('terms.title'));
   
   // 컴포넌트 마운트 시 로그
-  useEffect(() => {
+  useEffect(() => { 
     console.log('TermsOfService component mounted');
     return () => {
       console.log('TermsOfService component unmounted');
