@@ -2,6 +2,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Paper, Typography, CircularProgress, Box } from '@mui/material';
 import monthlyReturnsData from '../data/monthlyReturn.json';
+import { useTranslation } from 'react-i18next';
 
 interface DrawdownChartProps {
   symbol: string;
@@ -36,6 +37,8 @@ const calculateDrawdown = (monthlyReturns: number[]): number[] => {
 };
 
 const DrawdownChart: React.FC<DrawdownChartProps> = ({ symbol, monthlyReturns }) => {
+  const { t } = useTranslation();
+
   // If no data is provided, show loading state
   if (!monthlyReturns || Object.keys(monthlyReturns).length === 0) {
     return (
@@ -103,7 +106,7 @@ const DrawdownChart: React.FC<DrawdownChartProps> = ({ symbol, monthlyReturns })
   return (
     <Paper sx={{ p: 2, height: '300px' }}>
       <Typography variant="h6" gutterBottom>
-        Maximum Drawdown
+        {t('drawdownChart.maxDrawdown')}
       </Typography>
       <ResponsiveContainer width="100%" height="80%">
         <LineChart

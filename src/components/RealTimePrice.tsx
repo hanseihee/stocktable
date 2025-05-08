@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface RealTimePriceProps { 
   symbol: string;
@@ -49,6 +50,7 @@ const RealTimePrice: React.FC<RealTimePriceProps> = ({ symbol, className }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchRealTimePrice = async () => {
@@ -85,11 +87,11 @@ const RealTimePrice: React.FC<RealTimePriceProps> = ({ symbol, className }) => {
   return (
     <PriceContainer isDarkMode={isDarkMode}>
       <PriceRow>
-        <PriceLabel isDarkMode={isDarkMode}>Current Price</PriceLabel>
+        <PriceLabel isDarkMode={isDarkMode}>{t('realTimePrice.currentPrice')}</PriceLabel>
         <PriceValue isDarkMode={isDarkMode}>${priceData.price.toFixed(2)}</PriceValue>
       </PriceRow>
       <PriceRow>
-        <PriceLabel isDarkMode={isDarkMode}>Change</PriceLabel>
+        <PriceLabel isDarkMode={isDarkMode}>{t('realTimePrice.change')}</PriceLabel>
         <PriceValue isPositive={priceData.change >= 0} isDarkMode={isDarkMode}>
           {priceData.change >= 0 ? '+' : ''}{priceData.change.toFixed(2)} ({priceData.changePercent.toFixed(2)}%)
         </PriceValue>
