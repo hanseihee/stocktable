@@ -45,7 +45,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import monthlyReturnsData from './data/monthlyReturn.json'; // 월별 수익률 데이터
 import './App.css';
 import TradingViewWidget from './components/TradingViewWidget';
-import { Routes, Route, Navigate, useParams, useNavigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { Analytics } from "@vercel/analytics/react"
 import RealTimePrice from './components/RealTimePrice';
 import DrawdownChart from './components/DrawdownChart';
@@ -157,6 +157,11 @@ interface TickipopProps {
   defaultSymbol?: string; // 기본 심볼 (루트 경로에서 사용)
 }
 
+// 언어코드 유효성 검사 함수
+const isValidLang = (lang: string) => [
+  'en','ko','ja','zh','fr','hi','pt','es','ru'
+].includes(lang);
+
 /**
  * Tickipop 메인 컴포넌트
  * 주식 데이터 표시 및 사용자 인터페이스 제공
@@ -164,6 +169,9 @@ interface TickipopProps {
 const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
   const { t, i18n } = useTranslation();
   const [returnsData, setReturnsData] = useState<Record<string, number[]>>(monthlyReturnsData);
+  const { lang = 'en', symbol: routeSymbol } = useParams<{ lang?: string; symbol?: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [darkMode, setDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -172,14 +180,20 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
   const [displaySymbol, setDisplaySymbol] = useState('');
   const [searchHistory, setSearchHistory] = useState<SearchOption[]>([]);
   const [suggestions, setSuggestions] = useState<SearchOption[]>([]);
-  const { symbol: routeSymbol } = useParams<{ symbol?: string }>();
-  const navigate = useNavigate();
   const themeMui = useTheme();
   const isMobile = useMediaQuery(themeMui.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState('');
   const [monthlyReturns, setMonthlyReturns] = useState<Record<string, number[]>>({});
 
-  // 사용할 심볼 결정 (URL 파라미터, 기본 심볼, localStorage 순으로 확인)
+  // URL의 lang과 i18n 동기화
+  React.useEffect(() => {
+    if (lang && i18n.language !== lang && isValidLang(lang)) {
+      i18n.changeLanguage(lang);
+      localStorage.setItem('language', lang);
+    }
+  }, [lang, i18n]);
+
+  // 사용할 심볼 결정 (URL 파라미터, 기본 심볼, localStorage 순)
   const currentSymbol = routeSymbol || defaultSymbol || localStorage.getItem('lastSymbol') || '';
 
   // 검색 기록 로드
@@ -221,10 +235,20 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
 
   /**
    * 언어 변경 함수
-   * @param lng 변경할 언어 코드
+   * @param newLang 변경할 언어 코드
    */
-  const changeLanguage = (lng: string) => {
-    changeI18nLanguage(lng);
+  const changeLanguage = (newLang: string) => {
+    if (!isValidLang(newLang)) return;
+    const segments = location.pathname.split('/');
+    if (segments[1] && isValidLang(segments[1])) {
+      segments[1] = newLang;
+    } else {
+      segments.splice(1, 0, newLang); // lang prefix가 없으면 추가
+    }
+    const newPath = segments.join('/') || `/${newLang}`;
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('language', newLang);
+    navigate(newPath, { replace: true });
   };
 
   /**
@@ -311,10 +335,10 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       setSelectedSymbol('');
       // 기본 심볼을 사용하지 않는 경우에만 URL 변경
       if (!routeSymbol && currentSymbol && !defaultSymbol) {
-        navigate(`/symbol/${upperSymbol}`, { replace: true });
+        navigate(`/${lang}/symbol/${upperSymbol}`, { replace: true });
       }
     }
-  }, [currentSymbol, navigate, routeSymbol, defaultSymbol]);
+  }, [currentSymbol, navigate, routeSymbol, defaultSymbol, lang]);
 
   /**
    * 심볼 입력 필드 변경 핸들러
@@ -329,7 +353,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
   const handleFetchData = () => {
     const upperSymbol = selectedSymbol.toUpperCase();
     if (upperSymbol && upperSymbol !== displaySymbol) { // 심볼이 유효하고 변경된 경우에만 가져오기
-      navigate(`/symbol/${upperSymbol}`);
+      navigate(`/${lang}/symbol/${upperSymbol}`);
       setSelectedSymbol(''); // 검색 후 입력 필드 초기화
     }
   };
@@ -341,7 +365,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
     if (value) {
       const symbol = typeof value === 'string' ? value : value.symbol;
       setSelectedSymbol(symbol);
-      navigate(`/symbol/${symbol.toUpperCase()}`);
+      navigate(`/${lang}/symbol/${symbol.toUpperCase()}`);
       setSelectedSymbol(''); // 선택 후 입력 필드 초기화
     }
   };
@@ -438,7 +462,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
           if (newValue) {
             const symbol = typeof newValue === 'string' ? newValue : newValue.symbol;
             setSelectedSymbol(symbol);
-            navigate(`/symbol/${symbol.toUpperCase()}`);
+            navigate(`/${lang}/symbol/${symbol.toUpperCase()}`);
             setSelectedSymbol(''); // 드롭다운에서 선택 후 입력 필드 초기화
           }
         }}
@@ -586,8 +610,8 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
         <meta 
           property="og:url" 
           content={displaySymbol 
-            ? `https://tickipop.com/symbol/${displaySymbol}` 
-            : 'https://tickipop.com'
+            ? `https://tickipop.com/${lang}/symbol/${displaySymbol}` 
+            : `https://tickipop.com/${lang}`
           } 
         />
         <meta 
@@ -607,8 +631,8 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
         <link 
           rel="canonical" 
           href={displaySymbol 
-            ? `https://tickipop.com/symbol/${displaySymbol}` 
-            : 'https://tickipop.com'
+            ? `https://tickipop.com/${lang}/symbol/${displaySymbol}` 
+            : `https://tickipop.com/${lang}`
           } 
         />
         <meta name="robots" content="index, follow" />
@@ -633,7 +657,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
           <Typography 
             variant="h6" 
             component={Link} 
-            to="/"
+            to={`/${lang}`}
             sx={{ 
               textDecoration: 'none', 
               color: 'white',
@@ -926,10 +950,10 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
               justifyContent: { xs: 'center', sm: 'flex-end' },
               gap: 2
             }}>
-              <Link to="/privacy" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Link to={`/${lang}/privacy`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Typography variant="body2" color="text.secondary">{t('footer.privacy')}</Typography>
               </Link>
-              <Link to="/terms" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Link to={`/${lang}/terms`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Typography variant="body2" color="text.secondary">{t('footer.terms')}</Typography>
               </Link>
             </Box>
@@ -953,11 +977,13 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Tickipop defaultSymbol="SPY" />} />
-        <Route path="/symbol/:symbol" element={<Tickipop />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 기본 경로 접근 시 언어 prefix로 리다이렉트 */}
+        <Route path="/" element={<Navigate to={`/${localStorage.getItem('language') || 'en'}`} replace />} />
+        <Route path=":lang" element={<Tickipop defaultSymbol="SPY" />} />
+        <Route path=":lang/symbol/:symbol" element={<Tickipop />} />
+        <Route path=":lang/privacy" element={<PrivacyPolicy />} />
+        <Route path=":lang/terms" element={<TermsOfService />} />
+        <Route path="*" element={<Navigate to={`/${localStorage.getItem('language') || 'en'}`} replace />} />
       </Routes>
       <Analytics />
     </>
