@@ -22,11 +22,18 @@
       "december": "12월"
     },
     "error.404": "요청하신 페이지를 찾을 수 없습니다",
-    "error.failedToFetchData": "데이터를 가져오는데 실패했습니다",
-    "loading.data": "데이터를 불러오는 중...",
-    "search.placeholder": "주식, 심볼 또는 회사명",
+    "error.failedToFetchData": "Failed to fetch data",
+    "loading.data": "Loading data...",
+    "search.placeholder": "stocks, symbols or companies",
     "footer.copyright": "© {{year}} Tickipop.com. All rights reserved.",
-    "footer.privacy": "개인정보 처리방침",
-    "footer.terms": "이용약관",
-    "table.yearlyTotal": "연간 합계"
+    "footer.privacy": "Privacy Policy",
+    "footer.terms": "Terms of Service",
+    "table.yearlyTotal": "Yearly Total",
+    "drawdownChart.maxDrawdown": "Maximum Drawdown",
+    "drawdownChart.loading": "Loading drawdown data...",
+    "drawdownChart.noData": "No data available for the selected period",
+    "realTimePrice.currentPrice": "Current Price",
+    "realTimePrice.change": "Change",
+    "realTimePrice.error": "Error: {{error}}",
+    "realTimePrice.loading": "Loading..."
 }

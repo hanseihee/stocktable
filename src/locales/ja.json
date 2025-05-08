@@ -22,11 +22,18 @@
       "december": "12月"
     },
     "error.404": "404 見つかりませんでした",
-    "error.failedToFetchData": "データの取得に失敗しました",
-    "loading.data": "データを読み込み中...",
-    "search.placeholder": "株式、シンボル、または企業名",
+    "error.failedToFetchData": "Failed to fetch data",
+    "loading.data": "Loading data...",
+    "search.placeholder": "stocks, symbols or companies",
     "footer.copyright": "© {{year}} Tickipop.com. All rights reserved.",
-    "footer.privacy": "プライバシーポリシー",
-    "footer.terms": "利用規約",
-    "table.yearlyTotal": "年間合計"
+    "footer.privacy": "Privacy Policy",
+    "footer.terms": "Terms of Service",
+    "table.yearlyTotal": "Yearly Total",
+    "drawdownChart.maxDrawdown": "Maximum Drawdown",
+    "drawdownChart.loading": "Loading drawdown data...",
+    "drawdownChart.noData": "No data available for the selected period",
+    "realTimePrice.currentPrice": "Current Price",
+    "realTimePrice.change": "Change",
+    "realTimePrice.error": "Error: {{error}}",
+    "realTimePrice.loading": "Loading..."
 }

@@ -8,12 +8,24 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import ko from './locales/ko.json';
 import ja from './locales/ja.json';
+import zh from './locales/zh.json';
+import fr from './locales/fr.json';
+import hi from './locales/hi.json';
+import pt from './locales/pt.json';
+import es from './locales/es.json';
+import ru from './locales/ru.json';
 
 // 지원하는 언어 코드 상수
 const SUPPORTED_LANGUAGES = {
   ENGLISH: 'en',
   KOREAN: 'ko',
-  JAPANESE: 'ja'
+  JAPANESE: 'ja',
+  CHINESE_SIMPLIFIED: 'zh',
+  FRENCH: 'fr',
+  HINDI: 'hi',
+  PORTUGUESE: 'pt',
+  SPANISH: 'es',
+  RUSSIAN: 'ru'
 };
 
 // 기본 언어 설정
@@ -29,7 +41,13 @@ i18n.use(initReactI18next).init({
   resources: {
     [SUPPORTED_LANGUAGES.ENGLISH]: { translation: en },
     [SUPPORTED_LANGUAGES.KOREAN]: { translation: ko },
-    [SUPPORTED_LANGUAGES.JAPANESE]: { translation: ja }
+    [SUPPORTED_LANGUAGES.JAPANESE]: { translation: ja },
+    [SUPPORTED_LANGUAGES.CHINESE_SIMPLIFIED]: { translation: zh },
+    [SUPPORTED_LANGUAGES.FRENCH]: { translation: fr },
+    [SUPPORTED_LANGUAGES.HINDI]: { translation: hi },
+    [SUPPORTED_LANGUAGES.PORTUGUESE]: { translation: pt },
+    [SUPPORTED_LANGUAGES.SPANISH]: { translation: es },
+    [SUPPORTED_LANGUAGES.RUSSIAN]: { translation: ru }
   },
   lng: savedLanguage, // 저장된 언어 설정을 사용
   fallbackLng: DEFAULT_LANGUAGE, // 언어가 없을 경우 기본 언어

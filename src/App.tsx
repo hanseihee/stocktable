@@ -667,6 +667,14 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
               <MenuItem value="en">🇺🇸 EN</MenuItem>
               <MenuItem value="ko">🇰🇷 KO</MenuItem>
               <MenuItem value="ja">🇯🇵 JA</MenuItem>
+              <MenuItem value="zh">🇨🇳 中文(简体)</MenuItem>
+              <MenuItem value="zh-TW">🇹🇼 中文(繁體)</MenuItem>
+              <MenuItem value="de">🇩🇪 DE</MenuItem>
+              <MenuItem value="fr">🇫🇷 FR</MenuItem>
+              <MenuItem value="hi">🇮🇳 HI</MenuItem>
+              <MenuItem value="pt">🇧🇷 PT</MenuItem>
+              <MenuItem value="es">🇪🇸 ES</MenuItem>
+              <MenuItem value="ru">🇷🇺 RU</MenuItem>
             </Select>
             <IconButton 
               onClick={toggleDarkMode} 
