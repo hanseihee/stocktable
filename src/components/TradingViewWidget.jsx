@@ -1,28 +1,30 @@
 import React, { useEffect, useRef, memo } from 'react';
 
-function TradingViewWidget() {
+function TradingViewWidget({ darkMode, ticker, shouldUpdate }) {
   const container = useRef(null);
 
   useEffect(() => {
+    if (container.current) {
+      container.current.innerHTML = '';
+    }
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
-    script.innerHTML = `
-      {
-        "height": "410",
-        "autosize": true,
-        "symbol": "PYTH:SPY",
-        "interval": "15",
-        "timezone": "Etc/UTC",
-        "theme": "light",
-        "style": "1",
-        "locale": "en",
-        "allow_symbol_change": true,
-        "support_host": "https://www.tradingview.com"
-      }`;
+    script.innerHTML = JSON.stringify({
+      height: "410",
+      autosize: true,
+      symbol: ticker || "PYTH:SPY",
+      interval: "15",
+      timezone: "Etc/UTC",
+      theme: darkMode ? "dark" : "light",
+      style: "1",
+      locale: "en",
+      allow_symbol_change: true,
+      support_host: "https://www.tradingview.com"
+    });
     container.current.appendChild(script);
-  }, []);
+  }, [ticker, darkMode, shouldUpdate]);
 
   return (
     <div className="tradingview-widget-container" ref={container} style={{ height: "500px", width: "100%" }}>
