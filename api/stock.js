@@ -74,11 +74,28 @@ export default async function handler(req, res) {
       monthlyData[currentYear][currentMonth] = parseFloat(returnRate.toFixed(2));
     }
 
+    // PER, PBR 등 재무지표 가져오기
+    const summary = await yahooFinance.quoteSummary(symbol, {
+      modules: ['summaryDetail', 'defaultKeyStatistics', 'financialData']
+    });
+
+    // 실제 구조를 로그로 확인
+    console.log('quoteSummary:', JSON.stringify(summary, null, 2));
+
+    // PER, PBR 추출 (실제 구조에 맞게 경로 조정 필요)
+    const per = summary?.result?.[0]?.summaryDetail?.trailingPE ?? ...;
+    const pbr =
+      summary?.defaultKeyStatistics?.priceToBook ??
+      summary?.summaryDetail?.priceToBook ??
+      null;
+
     // 응답 반환
     res.status(200).json({ 
       symbol, 
       data: monthlyData,
       dailyData: dailyResult, // 현재 월의 일별 데이터 포함
+      per,
+      pbr,
       message: '데이터를 localStorage에 저장하려면 브라우저 콘솔에서 다음 코드를 실행하세요: localStorage.setItem(\'stockData\', JSON.stringify(response.data))'
     });
   } catch (error) {
