@@ -35,5 +35,8 @@
   "realTimePrice.currentPrice": "현재 가격",
   "realTimePrice.change": "변동",
   "realTimePrice.error": "오류: {{error}}",
-  "realTimePrice.loading": "로딩 중..."
+  "realTimePrice.loading": "로딩 중...",
+  "valuation.title": "주가 지표",
+  "valuation.per": "PER (주가수익비율)",
+  "valuation.pbr": "PBR (주가순자산비율)"
 }
