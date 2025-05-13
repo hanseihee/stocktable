@@ -83,14 +83,13 @@ export default async function handler(req, res) {
     console.log('quoteSummary:', JSON.stringify(summary, null, 2));
 
     // PER, PBR 추출 (실제 구조에 맞게 경로 조정)
-    const summaryResult = summary?.result?.[0] ?? {};
     const per =
-      summaryResult?.summaryDetail?.trailingPE ??
-      summaryResult?.defaultKeyStatistics?.trailingPE ??
+      summary?.summaryDetail?.trailingPE ??
+      summary?.defaultKeyStatistics?.trailingPE ??
       null;
     const pbr =
-      summaryResult?.defaultKeyStatistics?.priceToBook ??
-      summaryResult?.summaryDetail?.priceToBook ??
+      summary?.defaultKeyStatistics?.priceToBook ??
+      summary?.summaryDetail?.priceToBook ??
       null;
 
     // 응답 반환
