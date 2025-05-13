@@ -760,10 +760,10 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
                       {t('valuation.title', '주가 지표')}
                     </Typography>
                     <Typography variant="body2">
-                      PER (주가수익비율): {(per === null || pbr === null) ? '-' : per.toFixed(2)}
+                      PER (주가수익비율): {per !== null ? per.toFixed(2) : '-'}
                     </Typography>
                     <Typography variant="body2">
-                      PBR (주가순자산비율): {(per === null || pbr === null) ? '-' : pbr.toFixed(2)}
+                      PBR (주가순자산비율): {pbr !== null ? pbr.toFixed(2) : '-'}
                     </Typography>
                     <Typography variant="body2">
                       {t('valuation.dividendYield', '배당수익률(Dividend Yield)')}: {dividendYield !== null ? dividendYield.toFixed(2) + '%' : '-'}
