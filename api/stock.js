@@ -82,11 +82,15 @@ export default async function handler(req, res) {
     // 실제 구조를 로그로 확인
     console.log('quoteSummary:', JSON.stringify(summary, null, 2));
 
-    // PER, PBR 추출 (실제 구조에 맞게 경로 조정 필요)
-    const per = summary?.result?.[0]?.summaryDetail?.trailingPE ?? ...;
+    // PER, PBR 추출 (실제 구조에 맞게 경로 조정)
+    const summaryResult = summary?.result?.[0] ?? {};
+    const per =
+      summaryResult?.summaryDetail?.trailingPE ??
+      summaryResult?.defaultKeyStatistics?.trailingPE ??
+      null;
     const pbr =
-      summary?.defaultKeyStatistics?.priceToBook ??
-      summary?.summaryDetail?.priceToBook ??
+      summaryResult?.defaultKeyStatistics?.priceToBook ??
+      summaryResult?.summaryDetail?.priceToBook ??
       null;
 
     // 응답 반환
