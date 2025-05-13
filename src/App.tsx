@@ -186,6 +186,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
   const [monthlyReturns, setMonthlyReturns] = useState<Record<string, number[]>>({});
   const [per, setPer] = useState<number | null>(null);
   const [pbr, setPbr] = useState<number | null>(null);
+  const [dividendYield, setDividendYield] = useState<number | null>(null);
 
   // URL의 lang과 i18n 동기화
   React.useEffect(() => {
@@ -317,6 +318,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       // PER, PBR 상태 저장
       setPer(result.per ?? null);
       setPbr(result.pbr ?? null);
+      setDividendYield(result.dividendYield ?? null);
       
       // 검색 기록 저장
       saveSearchHistory(symbolToFetch);
@@ -752,16 +754,19 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
                 <Box sx={{ mt: 2 }}>
                   {/* 최대 낙폭 차트 */}
                   <DrawdownChart symbol={displaySymbol} monthlyReturns={monthlyReturns} />
-                  {/* PER, PBR 표시 */}
+                  {/* PER, PBR, 배당수익률 표시 */}
                   <Box sx={{ mt: 2, p: 2, backgroundColor: theme.palette.mode === 'dark' ? COLORS.DARK_INPUT : COLORS.LIGHT_INPUT, borderRadius: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
                       {t('valuation.title', '주가 지표')}
                     </Typography>
                     <Typography variant="body2">
-                      PER (주가수익비율): {per !== null ? per.toFixed(2) : '-'}
+                      PER (주가수익비율): {(per === null || pbr === null) ? '-' : per.toFixed(2)}
                     </Typography>
                     <Typography variant="body2">
-                      PBR (주가순자산비율): {pbr !== null ? pbr.toFixed(2) : '-'}
+                      PBR (주가순자산비율): {(per === null || pbr === null) ? '-' : pbr.toFixed(2)}
+                    </Typography>
+                    <Typography variant="body2">
+                      {t('valuation.dividendYield', '배당수익률(Dividend Yield)')}: {dividendYield !== null ? dividendYield.toFixed(2) + '%' : '-'}
                     </Typography>
                   </Box>
                 </Box>
