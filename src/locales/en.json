@@ -35,5 +35,8 @@
     "realTimePrice.currentPrice": "Current Price",
     "realTimePrice.change": "Change",
     "realTimePrice.error": "Error: {{error}}",
-    "realTimePrice.loading": "Loading..."
+    "realTimePrice.loading": "Loading...",
+    "valuation.title": "valuation",
+    "valuation.per": "PER (Price to Earnings Ratio)",
+    "valuation.pbr": "PBR (Price-To-Book Ratio)"
 }

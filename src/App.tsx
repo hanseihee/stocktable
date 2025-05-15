@@ -757,16 +757,16 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
                   {/* PER, PBR, 배당수익률 표시 */}
                   <Box sx={{ mt: 2, p: 2, backgroundColor: theme.palette.mode === 'dark' ? COLORS.DARK_INPUT : COLORS.LIGHT_INPUT, borderRadius: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
-                      {t('valuation.title', '주가 지표')}
+                      {t('valuation.title')}
                     </Typography>
                     <Typography variant="body2">
-                      PER (주가수익비율): {per !== null ? per.toFixed(2) : '-'}
+                      {t('valuation.per')}: {per !== null ? per.toFixed(2) : '-'}
                     </Typography>
                     <Typography variant="body2">
-                      PBR (주가순자산비율): {pbr !== null ? pbr.toFixed(2) : '-'}
+                      {t('valuation.pbr')}: {pbr !== null ? pbr.toFixed(2) : '-'}
                     </Typography>
                     <Typography variant="body2">
-                      {t('valuation.dividendYield', '배당수익률(Dividend Yield)')}: {dividendYield !== null ? dividendYield.toFixed(2) + '%' : '-'}
+                      {t('valuation.dividendYield')}: {dividendYield !== null ? dividendYield.toFixed(2) + '%' : '-'}
                     </Typography>
                   </Box>
                 </Box>
