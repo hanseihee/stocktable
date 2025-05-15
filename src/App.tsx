@@ -52,6 +52,7 @@ import DrawdownChart from './components/DrawdownChart';
 import { changeLanguage as changeI18nLanguage } from './i18n';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
+import ReactCountryFlag from "react-country-flag";
 
 // 색상 관련 상수
 const COLORS = {
@@ -696,15 +697,42 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
                 }
               }}
             >
-              <MenuItem value="en">🇺🇸 EN</MenuItem>
-              <MenuItem value="ko">🇰🇷 KO</MenuItem>
-              <MenuItem value="ja">🇯🇵 JA</MenuItem>
-              <MenuItem value="zh">🇨🇳 中文(简体)</MenuItem>
-              <MenuItem value="fr">🇫🇷 FR</MenuItem>
-              <MenuItem value="hi">🇮🇳 HI</MenuItem>
-              <MenuItem value="pt">🇧🇷 PT</MenuItem>
-              <MenuItem value="es">🇪🇸 ES</MenuItem>
-              <MenuItem value="ru">🇷🇺 RU</MenuItem>
+              <MenuItem value="en">
+                <ReactCountryFlag countryCode="US" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                EN
+              </MenuItem>
+              <MenuItem value="ko">
+                <ReactCountryFlag countryCode="KR" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                KO
+              </MenuItem>
+              <MenuItem value="ja">
+                <ReactCountryFlag countryCode="JP" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                JA
+              </MenuItem>
+              <MenuItem value="zh">
+                <ReactCountryFlag countryCode="CN" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                中文(简体)
+              </MenuItem>
+              <MenuItem value="fr">
+                <ReactCountryFlag countryCode="FR" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                FR
+              </MenuItem>
+              <MenuItem value="hi">
+                <ReactCountryFlag countryCode="IN" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                HI
+              </MenuItem>
+              <MenuItem value="pt">
+                <ReactCountryFlag countryCode="BR" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                PT
+              </MenuItem>
+              <MenuItem value="es">
+                <ReactCountryFlag countryCode="ES" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                ES
+              </MenuItem>
+              <MenuItem value="ru">
+                <ReactCountryFlag countryCode="RU" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
+                RU
+              </MenuItem>
             </Select>
             <IconButton 
               onClick={toggleDarkMode} 
