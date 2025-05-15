@@ -700,7 +700,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
               <MenuItem value="en">
                 <ReactCountryFlag countryCode="US" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
                 EN
-              </MenuItem>
+              </MenuItem> 
               <MenuItem value="ko">
                 <ReactCountryFlag countryCode="KR" svg style={{ width: "1.5em", height: "1.5em", marginRight: 8 }} />
                 KO
