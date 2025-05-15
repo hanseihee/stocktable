@@ -38,5 +38,6 @@
     "realTimePrice.loading": "Loading...",
     "valuation.title": "valuation",
     "valuation.per": "PER (Price to Earnings Ratio)",
-    "valuation.pbr": "PBR (Price-To-Book Ratio)"
+    "valuation.pbr": "PBR (Price-To-Book Ratio)",
+    "valuation.dividendYield": "Dividend Yield"
 }

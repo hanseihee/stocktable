@@ -38,5 +38,6 @@
     "realTimePrice.loading": "Загрузка...",
     "valuation.title": "оценка",
     "valuation.per": "Соотношение цена/прибыль (PER)",
-    "valuation.pbr": "Соотношение цена/балансовая стоимость (PBR)"
+    "valuation.pbr": "Соотношение цена/балансовая стоимость (PBR)",
+    "valuation.dividendYield": "Дивидендная доходность (Dividend Yield)"
 }

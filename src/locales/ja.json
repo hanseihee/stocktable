@@ -38,5 +38,6 @@
     "realTimePrice.loading": "読み込み中…",
     "valuation.title": "評価",
     "valuation.per": "PER（株価収益率）",
-    "valuation.pbr": "PBR（株価純資産倍率）"
+    "valuation.pbr": "PBR（株価純資産倍率）",
+    "valuation.dividendYield": "配当利回り (Dividend Yield)"
 }

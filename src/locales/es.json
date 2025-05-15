@@ -38,5 +38,6 @@
     "realTimePrice.loading": "Cargando...",
     "valuation.title": "valoración",
     "valuation.per": "PER (Relación precio-ganancias)",
-    "valuation.pbr": "PBR (Relación precio-valor contable)"
+    "valuation.pbr": "PBR (Relación precio-valor contable)",
+    "valuation.dividendYield": "Rendimiento de dividendos (Dividend Yield)"
 }

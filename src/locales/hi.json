@@ -38,5 +38,6 @@
     "realTimePrice.loading": "लोड हो रहा है...",
     "valuation.title": "मूल्यांकन",
     "valuation.per": "पीईआर (मूल्य से आय अनुपात)",
-    "valuation.pbr": "पीबीआर (मूल्य से बुक अनुपात)"
+    "valuation.pbr": "पीबीआर (मूल्य से बुक अनुपात)",
+    "valuation.dividendYield": "लाभांश यील्ड (Dividend Yield)"
 }

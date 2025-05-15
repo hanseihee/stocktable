@@ -38,5 +38,6 @@
     "realTimePrice.loading": "Chargement...",
     "valuation.title": "évaluation",
     "valuation.per": "PER (Ratio cours/bénéfice)",
-    "valuation.pbr": "PBR (Ratio cours/valeur comptable)"
+    "valuation.pbr": "PBR (Ratio cours/valeur comptable)",
+    "valuation.dividendYield": "Rendement du dividende (Dividend Yield)"
 }

@@ -38,5 +38,6 @@
     "realTimePrice.loading": "載入中...",
     "valuation.title": "估值",
     "valuation.per": "市盈率 (PER)",
-    "valuation.pbr": "市淨率 (PBR)"
+    "valuation.pbr": "市淨率 (PBR)",
+    "valuation.dividendYield": "股息率 (Dividend Yield)"
 }

@@ -38,5 +38,6 @@
     "realTimePrice.loading": "로딩 중...",
     "valuation.title": "평가",
     "valuation.per": "PER (주가수익비율)",
-    "valuation.pbr": "PBR (주가순자산비율)"
+    "valuation.pbr": "PBR (주가순자산비율)",
+    "valuation.dividendYield": "배당수익률(Dividend Yield)"
 }
