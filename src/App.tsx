@@ -665,11 +665,12 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       <CssBaseline /> {/* 전역 스타일 적용 */}
       
       {/* 앱 바 (헤더) */}
-      <AppBar position="static" sx={{ 
-        backgroundColor: '#13161D',
+      <AppBar position="fixed" sx={{ 
+        backgroundColor: darkMode ? '#13161D' : '#f5f7fa',
         boxShadow: 'none',
         borderBottom: '1px solid',
-        borderColor: theme.palette.mode === 'dark' ? '#333' : COLORS.LIGHT_HEADER
+        borderColor: darkMode ? '#333' : '#e5e5e5',
+        zIndex: 1201
       }}>
         <Toolbar sx={{ 
           minHeight: '56px',
@@ -768,7 +769,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       {isMobile && renderSearchBar()}
 
       {/* 메인 콘텐츠 */}
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '20px', paddingTop: '72px' }}>
         {/* 로딩 및 에러 상태 표시 */}
         {isLoading ? (
           <div className="loading">{t('loading.data')}</div>
