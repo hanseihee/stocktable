@@ -173,7 +173,12 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
   const { lang = 'en', symbol: routeSymbol } = useParams<{ lang?: string; symbol?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [darkMode, setDarkMode] = useState(false);
+  // 다크모드 상태: 기본값 true, localStorage 연동
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('darkMode');
+    if (stored === null) return true; // 기본값 다크모드
+    return stored === 'true';
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState('');
@@ -259,8 +264,17 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
    * 다크모드 토글 함수
    */
   const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
+    setDarkMode((prevMode) => {
+      const next = !prevMode;
+      localStorage.setItem('darkMode', String(next));
+      return next;
+    });
   };
+
+  // 다크모드 상태를 localStorage와 동기화 (초기화 및 외부 변경 대응)
+  useEffect(() => {
+    localStorage.setItem('darkMode', String(darkMode));
+  }, [darkMode]);
 
   // 테마 설정
   const theme = createTheme({
