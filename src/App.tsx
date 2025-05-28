@@ -666,7 +666,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       
       {/* 앱 바 (헤더) */}
       <AppBar position="static" sx={{ 
-        backgroundColor: theme.palette.mode === 'dark' ? COLORS.DARK_BG : COLORS.DARK_HEADER,
+        backgroundColor: '#13161D',
         boxShadow: 'none',
         borderBottom: '1px solid',
         borderColor: theme.palette.mode === 'dark' ? '#333' : COLORS.LIGHT_HEADER
@@ -785,7 +785,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
               gutterBottom
               sx={{
                 fontWeight: 900,
-                background: 'linear-gradient(90deg, #1976d2 0%, #00bcd4 50%, #7b1fa2 100%)',
+                background: 'linear-gradient(45deg, #03CCFF 0%, #F71DFF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 MozBackgroundClip: 'text',
