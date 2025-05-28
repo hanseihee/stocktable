@@ -765,11 +765,27 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
         </Toolbar>
       </AppBar>
       
-      {/* 모바일에서 검색 바 표시 */}
-      {isMobile && renderSearchBar()}
+      {/* 모바일에서 검색 바를 헤더 아래에 고정 */}
+      {isMobile && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '56px',
+            left: 0,
+            width: '100vw',
+            zIndex: 1200,
+            background: darkMode ? '#13161D' : '#f5f7fa',
+            px: 2,
+            py: 1,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          }}
+        >
+          {renderSearchBar()}
+        </Box>
+      )}
 
       {/* 메인 콘텐츠 */}
-      <div style={{ padding: '20px', paddingTop: '72px' }}>
+      <div style={{ padding: '20px', paddingTop: isMobile ? '128px' : '72px' }}>
         {/* 로딩 및 에러 상태 표시 */}
         {isLoading ? (
           <div className="loading">{t('loading.data')}</div>
