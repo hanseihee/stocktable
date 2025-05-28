@@ -766,7 +766,20 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
         {displaySymbol && (
           <>
             {/* 실시간 차트 섹션 */}
-            <Typography variant="h4" gutterBottom>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                fontWeight: 900,
+                background: 'linear-gradient(90deg, #1976d2 0%, #00bcd4 50%, #7b1fa2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                MozBackgroundClip: 'text',
+                MozTextFillColor: 'transparent',
+                display: 'inline-block',
+                letterSpacing: 1.5,
+              }}
+            >
               {displaySymbol} {t('realTimeChart')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
