@@ -666,7 +666,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       
       {/* 앱 바 (헤더) */}
       <AppBar position="fixed" sx={{ 
-        backgroundColor: darkMode ? '#13161D' : '#f5f7fa',
+        backgroundColor: '#13161D',
         boxShadow: 'none',
         borderBottom: '1px solid',
         borderColor: darkMode ? '#333' : '#e5e5e5',
@@ -785,7 +785,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
       )}
 
       {/* 메인 콘텐츠 */}
-      <div style={{ padding: '20px', paddingTop: isMobile ? '128px' : '72px' }}>
+      <div style={{ padding: '20px', paddingTop: isMobile ? '136px' : '72px' }}>
         {/* 로딩 및 에러 상태 표시 */}
         {isLoading ? (
           <div className="loading">{t('loading.data')}</div>
