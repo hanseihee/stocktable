@@ -836,7 +836,7 @@ const Tickipop: React.FC<TickipopProps> = ({ defaultSymbol }) => {
                       {t('valuation.pbr')}: {pbr !== null ? pbr.toFixed(2) : '-'}
                     </Typography>
                     <Typography variant="body2">
-                      {t('valuation.dividendYield')}: {dividendYield !== null ? dividendYield.toFixed(2) + '%' : '-'}
+                      {t('valuation.dividendYield')}: {dividendYield !== null ? `${dividendYield.toFixed(2)}%` : '-'}
                     </Typography>
                   </Box>
                 </Box>
